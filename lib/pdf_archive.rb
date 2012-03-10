@@ -3,6 +3,10 @@ $: << File.expand_path('../../lib', __FILE__)
 require 'bundler'
 Bundler.require
 
+# for URL fetching
+require 'uri'
+require 'net/http'
+
 # Application module
 module PdfArchive
   def self.environment
@@ -62,6 +66,98 @@ set :public_folder, "#{PdfArchive.root}/public"
 
 get '/' do
   erb :poihome
+end
+
+get '/isometrics/:wayid' do
+  
+	wayid = params[:wayid]
+
+	if wayid != ''
+    	# generate from API: http://www.openstreetmap.org/api/0.6/way/[WAYID]/full
+    	# OSM takes awhile to do this, so you should probably have this done with a real server
+    	url = 'http://openstreetmap.org/api/0.6/way/' + wayid + '/full'
+    	url = URI.parse(url)
+    	res = Net::HTTP.start(url.host, url.port) {|http|
+    	  http.get('/api/0.6/way/' + wayid + '/full')
+    	}
+		gotdata = res.body.split('\n')
+		firstpt = ''
+		levels = '1'
+		name = 'OSM Way'
+      
+		# opening for this building format
+		printout = '''buildings.push(
+   {
+     sections: [
+       {
+         vertices: [\n'''
+
+		gotdata.each do |line|
+			if line.index('node id=') != nil
+				mylat = line.slice( line.index('lat=')+5 .. line.length )
+				mylat = mylat.slice(0 .. mylat.index('"') )
+				mylon = line.slice( line.index('lon=')+5 .. line.length )
+				mylon = mylon.slice(0 .. mylon.index('"') )
+				if firstpt == ''
+					firstpt = '[ ' + mylat + ', ' + mylon + ' ]'
+				end
+				printout += '[ ' + mylat + ', ' + mylon + ' ],\n'
+			elsif line.index('building:levels') != nil
+				# building level count is specified!
+				levels = line.slice( line.index('v=')+3 .. line.length )
+				levels = levels.slice( 0 .. levels.index('"') )
+			elsif line.index('k="name"') != nil
+				# building name is specified!
+				name = line.slice( line.index('v=')+3 .. line.length )
+				name = name.slice( 0 .. name.index('"') )
+			elsif line.index('/way') > -1
+				# repeat first point and close
+        		printout += firstpt + '\n         ],\n'
+
+        		# report building levels as 1 if not set otherwise
+        		# then finish this section of a building ( add comma if more sections! )
+        		printout += '         levels: "' + levels.sub('"','\\"') + '"\n       }\n'
+          
+        		# we have no more sections at this time, so finish the list of sections
+        		printout += '     ],\n'
+          
+        		# report name as OSM building if not set otherwise
+        		# then close the whole object 
+        		printout += '    name: "' + name.sub('"','\\"') + '"'
+        		printout += '   }\n);\n'
+        		break
+        	end
+
+    	printout
+	else
+		# send default building
+		'''buildings.push(
+  {
+    name: "Burke School",
+    sections: [
+      {
+        levels: 1,
+        vertices: [
+          [ 32.8193405, -83.6457683 ],
+          [ 32.8193103, -83.6455064 ],
+          [ 32.8192396, -83.6455179 ],
+          [ 32.819198, -83.6451576 ],
+          [ 32.8192733, -83.6451184 ],
+          [ 32.8192467, -83.6448518 ],
+          [ 32.8197124, -83.6447874 ],
+          [ 32.8197268, -83.6451034 ],
+          [ 32.8199292, -83.6450943 ],
+          [ 32.8199793, -83.6454204 ],
+          [ 32.8197225, -83.645431 ],
+          [ 32.8197552, -83.6457145 ],
+          [ 32.8196621, -83.6457297 ],
+          [ 32.8193405, -83.6457683 ] // repeat first point
+        ]
+      }
+    ]
+  }
+);'''
+	end
 end
 
 get '/pdf' do

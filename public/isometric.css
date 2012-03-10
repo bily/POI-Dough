@@ -1,0 +1,96 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: none;
+  font: 100% arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.clear {
+  clear: both;
+}
+
+/* === Column === */
+
+#column {
+  float: left;
+  width: 25%;
+}
+
+/* === Nav === */
+
+#nav {
+  /* border: 5px solid #0F0;
+  border-width: 5px 0; */
+  width: 100%;
+  position: relative;
+  float: left;
+}
+
+#nav li {
+  display:inline;
+  padding: 10px 0.5em;
+}
+
+/* === Branding === */
+
+#branding {
+  /* border: 5px solid #F00;
+  border-width: 5px 0; */
+  width: 100%;
+  position: relative;
+  float: left;
+  margin: 1em 0 2em 0;
+}
+
+#branding h1 {
+  background: url("http://i.imgur.com/lVfRw.jpg") no-repeat left top;
+  width: 250px;
+  height: 101px;
+}
+
+#branding h1 a {
+  display: block;
+  text-indent: -99em;
+}
+
+/* === Buildings === */
+#buildings ul li{
+  padding: 5px;
+  cursor: pointer;
+}
+
+#buildings ul li:hover{
+  background-color: #88eeff;
+}
+
+/* === Map === */
+
+#map-container {
+  /* border: 5px solid #00F;
+  border-width: 5px 0; */
+  height: 100%;
+  width: 75%;
+  position: relative;
+  float: left;
+  z-index: 10;
+}
+
+#map-container #map {
+  height: 100%;
+}
+
+/* === Overlay === */
+
+#overlay {
+  display:none;
+  position:fixed;
+  right:30px;
+  top:40px;
+  background-color:#fff;
+  border-radius:10px;
+  opacity:0.8;
+  padding:1em 10px;
+  z-index: 50;
+}

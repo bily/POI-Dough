@@ -6,6 +6,7 @@ Each Place will be connected to a record on MongoDB (through POI Dough) or Couch
 Here are some visual effects available today:
 <ul>
 <li>Build on top of the best OpenStreetMap and MapBox map tiles</li>
+<li>Explore and interact with the beautiful Leaflet.js maps API</li>
 <li>Make buildings pop out of the map with a 3D effect</li>
 <li>Texture parks, farms, forests, and other areas with your own icons.</li>
 <li>Tie appearance of buildings and polygons to tags within OpenStreetMap</li>
