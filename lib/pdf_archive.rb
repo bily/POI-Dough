@@ -80,17 +80,17 @@ get '/isometrics/:wayid' do
     	res = Net::HTTP.start(url.host, url.port) {|http|
     	  http.get('/api/0.6/way/' + wayid + '/full')
     	}
-		gotdata = res.body.split('\n')
+		gotdata = res.body.split("\n")
 		firstpt = ''
 		levels = '1'
 		name = 'OSM Way'
       
 		# opening for this building format
-		printout = '''buildings.push(
+		printout = "buildings.push(
    {
      sections: [
        {
-         vertices: [\n'''
+         vertices: [\n"
 
 		gotdata.each do |line|
 			if line.index('node id=') != nil
@@ -101,7 +101,7 @@ get '/isometrics/:wayid' do
 				if firstpt == ''
 					firstpt = '[ ' + mylat + ', ' + mylon + ' ]'
 				end
-				printout += '[ ' + mylat + ', ' + mylon + ' ],\n'
+				printout += "[ " + mylat + ", " + mylon + " ],\n"
 			elsif line.index('building:levels') != nil
 				# building level count is specified!
 				levels = line.slice( line.index('v=')+3 .. line.length )
@@ -112,19 +112,19 @@ get '/isometrics/:wayid' do
 				name = name.slice( 0 .. name.index('"') )
 			elsif line.index('/way') > -1
 				# repeat first point and close
-        		printout += firstpt + '\n         ],\n'
+        		printout += firstpt + "\n         ],\n"
 
         		# report building levels as 1 if not set otherwise
         		# then finish this section of a building ( add comma if more sections! )
-        		printout += '         levels: "' + levels.sub('"','\\"') + '"\n       }\n'
+        		printout += '         levels: "' + levels.sub('"','\\"') + "\"\n       }\n"
           
         		# we have no more sections at this time, so finish the list of sections
-        		printout += '     ],\n'
+        		printout += "     ],\n"
           
         		# report name as OSM building if not set otherwise
         		# then close the whole object 
         		printout += '    name: "' + name.sub('"','\\"') + '"'
-        		printout += '   }\n);\n'
+        		printout += "   }\n);\n"
         		break
         	end
 		end
