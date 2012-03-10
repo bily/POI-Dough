@@ -61,10 +61,14 @@ require 'process_pdf'
 set :public_folder, "#{PdfArchive.root}/public"
 
 get '/' do
+  erb :poihome
+end
+
+get '/pdf' do
   erb :home
 end
 
-post '/' do
+post '/pdf' do
   if params['pdf']
     document = Document.create!(params)
     Qu.enqueue(ProcessPdf, document.id)

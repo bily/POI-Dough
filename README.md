@@ -1,11 +1,32 @@
-# PDF Archive
+# POI Dough
 
-PDF Archive is a simple PDF storage and retrieval system. Uploading a PDF will store it, create a preview image for search listings, and extract the text from it so it can be indexed for search.
+POI Dough is a new way to show off Places of Interest (POI) by importing them from OpenStreetMap and styling them with HTML5 Canvas and CSS3.
+Each Place will be connected to a record on MongoDB (through POI Dough) or CouchDB (through DataCouch).
 
-## Setup
+Here are some visual effects available today:
+* Build on top of the best OpenStreetMap and MapBox map tiles
+* Make buildings pop out of the map with a 3D effect
+* Texture parks, farms, forests, and other areas with your own icons.
+* Tie appearance of buildings and polygons to tags within OpenStreetMap
 
-    git clone git://github.com/rwdaigle/demo-cedar-pdfarchive.git
-    cd demo-cedar-pdfarchive
+3D Building with Roof, on MapQuest Open Tiles
+<img src="http://i.imgur.com/Bb9Ed.png"/>
+
+## Old Model
+The author uses the wealth of OpenStreetMap data as a background, then builds their own layer from scratch.
+Participation by users is difficult to build into the system.
+<img src="http://i.imgur.com/FOwFW.png"/>
+
+## New Model
+The author imports buildings, parks, and other places from OpenStreetMap to populate their map.
+Users are invited to interact with the data available at each Place.
+Authors can import a dataset from DataCouch to populate their map.
+<img src="http://i.imgur.com/5aQ9p.png"/>
+
+# Setup
+
+    git clone git://github.com/mapmeld/POI-Dough.git
+    cd POI-Dough
     gem install bundle
     bundle
 
@@ -39,32 +60,22 @@ The MongoHQ or MongoLab Addons will give us a small free MongoDB instance for st
 
     heroku addons:add mongohq:free
 
-or
-
-    heroku addons:add mongolab:starter
-
-### Step 3: Configure For S3
-
-First setup an Amazon AWS account, get your key, secret, and create a bucket. Then take those values and configure the environment variables on Heroku.
-
-    heroku config:add AWS_ACCESS_KEY_ID=<aws_access_key_id> \
-                      AWS_SECRET_ACCESS_KEY=<aws_secret_access_key> \
-                      BUCKET_NAME=<bucket_name>
-
-### Step 4: Deploy to Heroku
+### Step 3: Deploy to Heroku
 
     git push heroku master
-    heroku scale web=1 worker=1
     heroku open
 
 When it is finished deploying it will give you the url to your app. Visit in the browser and enjoy!
 
 ## License
 
+Open source under the Free BSD licence
+Code for America
+
+---
+
+POI Dough is based on Heroku's MongoDB example, which has the following license:
 Copyright (c) 2011 Jonathan Hoyt
-
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

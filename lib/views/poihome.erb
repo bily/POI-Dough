@@ -1,0 +1,52 @@
+<div class="navbar navbar-fixed-top">
+	<div class="navbar-inner">
+		<div class="container">
+			<a class="brand" href="#">
+				POI Dough
+			</a>
+			<form class="navbar-search pull-right">
+				<input type="text" class="search-query" placeholder="Find Maps"/>
+			</form>
+		</div>
+	</div>
+</div>
+
+<h2 class="hero">
+	Highlight Buildings
+	<br/>
+	<img src="http://i.imgur.com/Bb9Ed.png"/>
+</h2>
+
+<h2 class="hero">
+	Create Textures
+	<br/>
+	<img src="http://i.imgur.com/eD3r1.png"/>
+</h2>
+
+<h2 class="hero">
+	Import Data
+</h2>
+
+<% if @documents %>
+  <h2>Search Results</h2>
+  <ul>
+    <% @documents.each do |document| %>
+      <li>
+        <a href="<%= document.pdf %>">
+          <img src="<%= document.preview %>" />
+          <%= document.pdf_filename %>
+        </a>
+      </li>
+    <% end %>
+  </ul>
+<% end %>
+
+<h2>Upload</h2>
+<form action='/' method="POST" enctype="multipart/form-data">
+  <p>
+    <input name="pdf" type="file" />
+  </p>
+  <p>
+    <button>Upload PDF</button>
+  </p>
+</form>
