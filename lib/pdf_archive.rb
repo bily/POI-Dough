@@ -127,7 +127,7 @@ get '/isometrics/:wayid' do
         		printout += '   }\n);\n'
         		break
         	end
-
+		end
     	printout
 	else
 		# send default building
