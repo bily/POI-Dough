@@ -4,23 +4,28 @@ POI Dough is a new way to show off Places of Interest (POI) by importing them fr
 Each Place will be connected to a record on MongoDB (through POI Dough) or CouchDB (through DataCouch).
 
 Here are some visual effects available today:
-* Build on top of the best OpenStreetMap and MapBox map tiles
-* Make buildings pop out of the map with a 3D effect
-* Texture parks, farms, forests, and other areas with your own icons.
-* Tie appearance of buildings and polygons to tags within OpenStreetMap
+<ul>
+<li>Build on top of the best OpenStreetMap and MapBox map tiles</li>
+<li>Make buildings pop out of the map with a 3D effect</li>
+<li>Texture parks, farms, forests, and other areas with your own icons.</li>
+<li>Tie appearance of buildings and polygons to tags within OpenStreetMap</li>
+</ul>
 
 3D Building with Roof, on MapQuest Open Tiles
+
 <img src="http://i.imgur.com/Bb9Ed.png"/>
 
 ## Old Model
 The author uses the wealth of OpenStreetMap data as a background, then builds their own layer from scratch.
 Participation by users is difficult to build into the system.
+
 <img src="http://i.imgur.com/FOwFW.png"/>
 
 ## New Model
 The author imports buildings, parks, and other places from OpenStreetMap to populate their map.
 Users are invited to interact with the data available at each Place.
 Authors can import a dataset from DataCouch to populate their map.
+
 <img src="http://i.imgur.com/5aQ9p.png"/>
 
 # Setup
