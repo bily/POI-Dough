@@ -263,7 +263,7 @@ get '/osmbbox/:bbox' do
 				myk = line.slice( line.index('k="')+3 .. line.length )
 				myk = myk.slice( 0 .. myk.index('"')-1 )
 				myv = line.slice( line.index('v="')+3 .. line.length )
-				myv = myv.slice( 0 .. myv.find('"')-1 )
+				myv = myv.slice( 0 .. myv.index('"')-1 )
 				printout += ',"' + myk + '":"' + myv + '"'
 				readex = readex + 1
 				line = gotdata[readex]
