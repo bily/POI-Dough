@@ -244,7 +244,7 @@ function writeBuilding(b, canvasid){
     var lngspan = lngmax - lngmin;
     var latspan = Math.max(latspan, lngspan);
     var lngspan = latspan;
-    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin - latspan / 10,lngmin - lngspan / 10), new L.LatLng(latmax + latspan / 10,lngmax + lngspan / 10));
+    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin - latspan / 7,lngmin - lngspan / 7), new L.LatLng(latmax + latspan / 10,lngmax + lngspan / 10));
     var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
     buildings[b].mapped = true;
     map.addLayer(image);
