@@ -14,7 +14,7 @@ var parks = [];
     <script type="text/javascript" src="/textures/48902706"></script>
     
     <script type="text/javascript">
-var map, terrain, baseIcon, tree;
+var map, terrain, baseIcon, corn, pumpkin, coffee, watermelon;
 function init(){
   // Main OSM layer
   var tileURL = 'http://tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -27,9 +27,23 @@ function init(){
   cityll = new L.LatLng(18.54478,-72.19993);
   map.setView(cityll, 15).addLayer(terrain);
   
-  tree = new Image();
-  tree.onload = function(){ drawParks(); }
-  tree.src = "/treeblot.png";
+  corn = new Image();
+  corn.onload = function(){
+	  pumpkin = new Image();
+	  pumpkin.onload = function(){
+		  coffee = new Image();
+		  coffee.onload = function(){
+			  watermelon = new Image();
+			  watermelon.onload = function(){
+	  			drawParks();
+			  }
+			  watermelon.src = "/watermelon.png";
+		  }
+		  coffee.src = "/coffee.png";
+	  }
+	  pumpkin.src = "/pumpkin.png";  
+  }
+  corn.src = "/corn.png";
 }
 
 function drawParks(){
@@ -96,7 +110,19 @@ function writePark(p, canvasid){
 
     // set offset to [ center_pixel_x, center_pixel_y ] from upper left corner
     var offset = [ (latmax - ctrlat) * scale, (ctrlng - lngmin) * scale ];
-  var icon = tree;
+  var icon;
+  if(parks[p].id == "48891304"){
+  	icon = corn;
+  }
+  else if(parks[p].id == "48902703"){
+  	icon = pumpkin;
+  }
+  else if(parks[p].id == "48902706"){
+  	icon = coffee;
+  }
+  else{
+  	icon = watermelon;
+  }
   for(var x=0; x<canvas.width; x+=25){
 	for(var y=0; y<canvas.height; y+=25){
 	    ctx.drawImage(icon, x, y, 25, 25);
