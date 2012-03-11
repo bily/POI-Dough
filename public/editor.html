@@ -589,7 +589,7 @@ function processOSM(data){
 function tableOfData(dict){
   var table = "<table class='table-condensed table-striped'>";
   for(var k in dict){
-    if(k == "id" || k == "name" || k == "lat" || k == "lon" || k == "line"){
+    if(k == "id" || k == "wayid" || k == "name" || k == "lat" || k == "lon" || k == "line"){
       continue;
     }
     table += "<tr><td>" + k + "</td><td>" + dict[k] + "</td></tr>";
