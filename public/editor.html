@@ -470,6 +470,31 @@ function activate_on_hover(m, b){
     });
   }
 }
+var activePoly;
+function activate_way(m, w){
+  m.on('mouseover', function(e){
+	if(activePoly){
+		map.removeLayer(activePoly);
+	}
+	var wll = w;
+	for(var i=0;i<wll.length;i++){
+		wll[i] = new L.LatLng(wll[i][0], wll[i][1]);
+	}
+	activePoly = new L.Polygon( wll, { color: "#f00", fillOpacity: 0.3, opacity: 0.65 } );
+	map.addLayer(activePoly);
+  });
+  m.on('click', function(e){
+    // show the building sketch and info
+    var b = {
+    	sections: [{
+    		vertices: w,
+    		levels: 1
+    	}]
+    };
+    m.openPopup();
+    writeBuilding(b, 'popupCanvas');
+  });
+}
 var bopon = [ ];
 function bop(icon, frame){
   setTimeout(function(){
@@ -507,20 +532,24 @@ function processOSM(data){
   for(var i=0;i<data.length;i++){
     if(data[i].line){
       // add this way
+	  var marker = new L.Marker( new L.LatLng( data[i].line[0][0], data[i].line[0][1] ), { icon: new miniIcon() } );
+      map.addLayer(marker);
+      marker.bindPopup( '<h3>' + (data[i].name || data[i].id) + '</h3>' + tableOfData(data[i]))
+      activate_way(marker, data[i]);
     }
     else{
       // show this node as a marker
-      var marker = new L.Marker( new L.LatLng( data[i].lat, data[i].lon ), { icon: new miniIcon() } );
+      /*var marker = new L.Marker( new L.LatLng( data[i].lat, data[i].lon ), { icon: new miniIcon() } );
       map.addLayer(marker);
       marker.bindPopup( '<h3>' + (data[i].name || data[i].id) + '</h3>' + tableOfData(data[i]))
-      activate_on_hover(marker, null);
+      activate_on_hover(marker, null);*/
     }
   }
 }
 function tableOfData(dict){
   var table = "<table class='table-condensed table-striped'>";
   for(var k in dict){
-    if(k == "id" || k == "name" || k == "lat" || k == "lon"){
+    if(k == "id" || k == "name" || k == "lat" || k == "lon" || k == "line"){
       continue;
     }
     table += "<tr><td>" + k + "</td><td>" + dict[k] + "</td></tr>";
