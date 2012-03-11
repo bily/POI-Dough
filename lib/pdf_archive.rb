@@ -75,7 +75,7 @@ get '/isometrics/:wayid' do
 	if wayid != ''
     	# generate from API: http://www.openstreetmap.org/api/0.6/way/[WAYID]/full
     	# OSM takes awhile to do this, so you should probably have this done with a real server
-    	url = 'http://openstreetmap.org/api/0.6/way/' + wayid + '/full'
+    	url = 'http://www.openstreetmap.org/api/0.6/way/' + wayid + '/full'
     	url = URI.parse(url)
     	res = Net::HTTP.start(url.host, url.port) {|http|
     	  http.get('/api/0.6/way/' + wayid + '/full')
