@@ -14,7 +14,7 @@ var parks = [];
     <script type="text/javascript" src="/textures/48902706"></script>
     <script type="text/javascript" src="/textures/51353969"></script>    
     <script type="text/javascript">
-var map, terrain, baseIcon, corn, pumpkin, coffee, watermelon;
+var map, terrain, baseIcon, corn, pumpkin, coffee, sugar;
 function init(){
   // Main OSM layer
   var tileURL = 'http://tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -33,11 +33,11 @@ function init(){
 	  pumpkin.onload = function(){
 		  coffee = new Image();
 		  coffee.onload = function(){
-			  watermelon = new Image();
-			  watermelon.onload = function(){
+			  sugar = new Image();
+			  sugar.onload = function(){
 	  			drawParks();
 			  }
-			  watermelon.src = "/watermelon.png";
+			  sugar.src = "/sugar.png";
 		  }
 		  coffee.src = "/coffee.png";
 	  }
@@ -121,7 +121,7 @@ function writePark(p, canvasid){
   	icon = coffee;
   }
   else if(parks[p].id == "51353969"){
-  	icon = watermelon;
+  	icon = sugar;
   }
   for(var x=0; x<canvas.width; x+=25){
 	for(var y=0; y<canvas.height; y+=25){
@@ -270,7 +270,7 @@ img.key {
           	<img class="key" src="/pumpkin.png"/> Pumpkin
           </li>
           <li>
-          	<img class="key" src="/watermelon.png"/> Watermelon
+          	<img class="key" src="/sugar.png"/> sugar
           </li>
           <li>
           	<img class="key" src="/coffee.png"/> Coffee
