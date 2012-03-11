@@ -12,7 +12,7 @@ var parks = [];
     <script type="text/javascript" src="/textures/48902703"></script>
     <script type="text/javascript" src="/textures/48891304"></script>
     <script type="text/javascript" src="/textures/48902706"></script>
-    
+    <script type="text/javascript" src="/textures/51353969"></script>    
     <script type="text/javascript">
 var map, terrain, baseIcon, corn, pumpkin, coffee, watermelon;
 function init(){
@@ -120,7 +120,7 @@ function writePark(p, canvasid){
   else if(parks[p].id == "48902706"){
   	icon = coffee;
   }
-  else{
+  else if(parks[p].id == "51353969"){
   	icon = watermelon;
   }
   for(var x=0; x<canvas.width; x+=25){
@@ -158,7 +158,7 @@ function writePark(p, canvasid){
     var latStretchFactor = 0;
     var lngStretchFactor = 0;
     if(parks[p].id == "48891304"){
-    	latStretchFactor = 0.2;
+    	latStretchFactor = 0.17;
     }
     var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan*latStretchFactor,lngmin-lngspan*lngStretchFactor), new L.LatLng(latmax+latspan*latStretchFactor,lngmax+lngspan*lngStretchFactor));
     var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
