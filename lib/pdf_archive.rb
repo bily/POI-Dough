@@ -312,6 +312,8 @@ get '/osmbbox/:bbox' do
 						else
 							printout += ',[' + nodes[myid].join(',') + ']'
 						end
+					end
+	
 				# print keys and values for ways with this information
 				elsif line.index('k="') != nil
 					if wrotenodes == 1
