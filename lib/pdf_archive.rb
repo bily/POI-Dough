@@ -184,6 +184,7 @@ get '/textures/:wayid' do
 		# opening for this building format
 		printout = "parks.push(
    {
+   	  id: \"" + wayid + "\",
       vertices: [\n"
 
 		gotdata.each do |line|

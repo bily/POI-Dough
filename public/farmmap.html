@@ -66,252 +66,6 @@ function drawParks(){
   }
 }
 
-function writeBuilding(b, canvasid){
-  //document.getElementById("overlay").style.display = "block";
-  var canvas = document.getElementById(canvasid);
-
-  ctrlat = buildings[b].center[0];
-  ctrlng = buildings[b].center[1];
-  latmin = buildings[b].latmin;
-  latmax = buildings[b].latmax;
-  lngmin = buildings[b].lngmin;
-  lngmax = buildings[b].lngmax;
-
-  for(var s=0; s<buildings[b].sections.length; s++){
-    // draw the footprint onto the canvas
-    // fetch the canvas context and set color styles
-    pix_x_offset = canvas.width * 1 / 2;
-    pix_y_offset = canvas.height * 1 / 2;
-    var ctx = canvas.getContext('2d');
-
-    // set scale in pixels per degree
-    var scale = Math.min( ( (canvas.width * 1 / 2) - buildings[b].sections[s].levels * 8) / (lngmax - lngmin) * 2, (canvas.height * 1 / 2 - buildings[b].sections[s].levels * 35) / (latmax - latmin) * 2);
-
-    // set a levels offset for this building, tuning based on scale
-    var factor = 1;
-    if(scale < 120000){
-      if(scale < 100000){
-        factor = 0.5;
-      }
-      else{
-        factor = 0.75;
-      }
-    }
-    var levels_offset = buildings[b].sections[s].levels * 35 * factor;
-    var levels_offset_x = buildings[b].sections[s].levels * 8 * factor;
-
-    // set offset to [ center_pixel_x, center_pixel_y ] from upper left corner
-    var offset = [ (latmax - ctrlat) * scale, (ctrlng - lngmin) * scale ];
-
-    // then draw each foot-point, its corresponding ceiling point, and connections
-    // start from the northernmost point and work your way south
-    var sorted = buildings[b].sections[s].vertices.slice(0);
-    sorted.sort( function(pt1, pt2){ return pt2[0] - pt1[0] } );
-
-    for(var v=0; v<sorted.length; v++){
-      var at_pt = toPixel( sorted[v], ctrlat, ctrlng, scale );
-      var last_pt, next_pt;
-      // find points which appeared before and after the current one in SERIES, not in NORTH -> SOUTH
-	  for(var i=0; i<buildings[b].sections[s].vertices.length; i++){
-        if(buildings[b].sections[s].vertices[i][0] == sorted[v][0]){
-		  if(buildings[b].sections[s].vertices[i][1] == sorted[v][1]){
-		    if(i != 0){
-		      last_pt = buildings[b].sections[s].vertices[i-1];
-		    }
-		    else{
-              last_pt = buildings[b].sections[s].vertices[buildings[b].sections[s].vertices.length - 1];
-		    }
-		    last_pt = toPixel( last_pt, ctrlat, ctrlng, scale );
-		    if(i != buildings[b].sections[s].vertices.length-1){
-		      next_pt = buildings[b].sections[s].vertices[i+1];
-		    }
-		    else{
-		      next_pt = buildings[b].sections[s].vertices[0];		    
-		    }
-		    next_pt = toPixel( next_pt, ctrlat, ctrlng, scale );
-		    break;
-		  }
-		}
-	  }
-
-	  // set wall colors
-      ctx.strokeStyle = "#000";
-      ctx.strokeWidth = 1;
-      
-      var wallSlope = ( at_pt[1] - last_pt[1] ) / ( at_pt[0] - last_pt[0] );
-      if(Math.abs( wallSlope ) > 1){
-         ctx.fillStyle = "#a00";
-      }
-
-	  // draw previous vertex to current vertex
-      ctx.moveTo( last_pt[0], last_pt[1] );
-      ctx.beginPath();
-      ctx.lineTo( last_pt[0] - levels_offset_x, last_pt[1] - levels_offset );
-      ctx.lineTo( at_pt[0] - levels_offset_x, at_pt[1] - levels_offset );
-      ctx.lineTo( at_pt[0], at_pt[1] );
-      ctx.closePath();
-      ctx.fill();
-      //ctx.stroke();
-      
-    wallSlope = ( at_pt[1] - next_pt[1] ) / ( at_pt[0] - next_pt[0] );
-      if(Math.abs( wallSlope ) > 1){
-         ctx.fillStyle = "#a00";
-      }
-      else{
-         ctx.fillStyle = "#f00";
-      }
-
-      // draw current vertex to next vertex
-      ctx.beginPath();
-      ctx.moveTo( at_pt[0], at_pt[1] );
-      ctx.lineTo( next_pt[0], next_pt[1] );
-      ctx.lineTo( next_pt[0] - levels_offset_x, next_pt[1] - levels_offset );
-      ctx.lineTo( at_pt[0] - levels_offset_x, at_pt[1] - levels_offset );
-      ctx.closePath();
-
-      // send drawing to canvas
-      ctx.fill();
-      ctx.stroke();
-    }
-    
-    // set roof colors
-	ctx.fillStyle = "#ccc";
-    ctx.strokeStyle = "#000";
-    ctx.strokeWidth = 2;
-    
-    var roofTip = [0, 0];
-    for(var i=0; i<buildings[b].sections[s].vertices.length; i++){
-	  var at_pt = buildings[b].sections[s].vertices[i];
-	  at_pt = toPixel( at_pt, ctrlat, ctrlng, scale );
-      roofTip[0] += at_pt[0] - levels_offset_x;
-      roofTip[1] += at_pt[1] - levels_offset;
-    }
-    roofTip[0] = roofTip[0] / (buildings[b].sections[s].vertices.length);
-    roofTip[1] = roofTip[1] / (buildings[b].sections[s].vertices.length);
-    
-    // draw triangles to form a roof
-    for(var i=buildings[b].sections[s].vertices.length-1; i>=0; i--){
-    //for(var i=0; i<buildings[b].sections[s].vertices.length; i++){
-      var last_pt;
-      if(i != 0){
-        last_pt = buildings[b].sections[s].vertices[i-1];
-      }
-      else{
-        last_pt = buildings[b].sections[s].vertices[buildings[b].sections[s].vertices.length - 1];
-      }
-	  last_pt = toPixel( last_pt, ctrlat, ctrlng, scale );
-	  var next_pt;
-	  if(i != buildings[b].sections[s].vertices.length - 1){
-		next_pt = buildings[b].sections[s].vertices[i+1];
-	  }
-	  else{
-		next_pt = buildings[b].sections[s].vertices[0];		    
-	  }
-	  next_pt = toPixel( next_pt, ctrlat, ctrlng, scale );
-	  var at_pt = buildings[b].sections[s].vertices[i];
-	  at_pt = toPixel( at_pt, ctrlat, ctrlng, scale );
-	  
-	  // calculate whether the current roofTip can be met without crossing lines
-	  var crossesLine = false;
-	  // calculate a line to the roofTip
-	  var roofLine_m = ((at_pt[1] - levels_offset) - roofTip[1]) / ((at_pt[0] - levels_offset_x) - roofTip[0] );
-	  var roofLine_i = (at_pt[1] - levels_offset) - (at_pt[0] - levels_offset_x) * roofLine_m;
-	  var newroofTip = roofTip;
-	  for(var f=0; f<buildings[b].sections[s].vertices.length; f++){
-	    // calculate a line from pt(i) to pt(i+1)
-	    var wallLine_a = buildings[b].sections[s].vertices[f];
-		wallLine_a = toPixel( wallLine_a, ctrlat, ctrlng, scale );
-		var wallLibe_b;
-		if(f != buildings[b].sections[s].vertices.length - 1){
-	      wallLine_b = buildings[b].sections[s].vertices[f+1];
-	    }
-	    else{
-	      wallLine_b = buildings[b].sections[s].vertices[0];	    
-	    }
-		wallLine_b = toPixel( wallLine_b, ctrlat, ctrlng, scale );
-
-	    var wallLine_m = (wallLine_a[1] - wallLine_b[1]) / (wallLine_a[0] - wallLine_b[0]);
-	    var wallLine_i = (wallLine_a[1] - levels_offset) - ((wallLine_a[0] - levels_offset_x) * wallLine_m);
-	    
-	    var intersect_x = (roofLine_i - wallLine_i) / (wallLine_m - roofLine_m);
-	    if((intersect_x > wallLine_a[0] + 7 && intersect_x < wallLine_b[0] - 7) || (intersect_x < wallLine_a[0] - 7 && intersect_x > wallLine_b[0] + 7)){
-	      // intersect falls on the visible part of the wall
-	      if((intersect_x > newroofTip[0] + 7 && intersect_x < at_pt[0] - levels_offset_x - 7) || (intersect_x < newroofTip[0] - 7 && intersect_x > at_pt[0] - levels_offset_x + 7)){
-	        // intersect would occur before the roof line met the roof
-	        // calculate a roofline halfway between the at_pt corner and the intersection point
-	        var newroof_x = (at_pt[0] - levels_offset_x) + 0.5 * ( intersect_x - (at_pt[0] - levels_offset_x) );
-	        var intersect_y = intersect_x * wallLine_m + wallLine_i;
-	        var newroof_y = (at_pt[1] - levels_offset) + 0.5 * ( intersect_y - (at_pt[1] - levels_offset) );
-	        newroofTip = [ newroof_x, newroof_y ];
-	      }
-	    }
-	  }
-	  
-	  // also move roofTip 50% closer if the current roof tip is too far away (100 pixels)
-	  if( Math.pow(newroofTip[1] - (at_pt[1] - levels_offset), 2) + Math.pow(newroofTip[0] - (at_pt[0] - levels_offset_x), 2)  > 10000){
-	    var newroof_x = (at_pt[0] - levels_offset_x) + 0.5 * ( roofTip[0] - (at_pt[0] - levels_offset_x) );
-	    var newroof_y = (at_pt[1] - levels_offset) + 0.5 * ( roofTip[1] - (at_pt[1] - levels_offset) );
-	    newroofTip = [ newroof_x, newroof_y ];
-	  }
-	  
-	  // if the roof was moved, connect last point, old roof, and new roof
-	  // at_pt would be in line with the other two, so it wouldn't make a triangle
-	  if((newroofTip[0] != roofTip[0]) || (newroofTip[1] != roofTip[1])){
-	    // don't draw the connecting panel if it's too big
-	    var tooBigPanel = false;
-	    if( Math.pow(newroofTip[1] - (last_pt[1] - levels_offset), 2) + Math.pow(newroofTip[0] - (last_pt[0] - levels_offset_x), 2)  > 5000){
-	      tooBigPanel = true;
-  	    }
-	    if( Math.pow(newroofTip[1] - roofTip[1], 2) + Math.pow(newroofTip[0] - roofTip[0], 2)  > 5000){
-	      tooBigPanel = true;
-  	    }
-  	    if(!tooBigPanel){
-          ctx.moveTo( newroofTip[0], newroofTip[1] );
-          ctx.beginPath();
-          ctx.lineTo( roofTip[0], roofTip[1] - levels_offset * 0.7 );
-          ctx.lineTo( last_pt[0] - levels_offset_x, last_pt[1] - levels_offset );
-          ctx.lineTo( newroofTip[0], newroofTip[1] - levels_offset * 0.7  );
-          ctx.closePath();
-	      roofTip = newroofTip;
-	      ctx.fill();
-	      ctx.stroke();
-	    }
-	  }
-	  //roofTip = newroofTip;
-
-      var wallSlope = ( at_pt[1] - last_pt[1] ) / ( at_pt[0] - last_pt[0] );
-      if(Math.abs( wallSlope ) > 1.3){
-         ctx.fillStyle = "#aaa";
-      }
-      else{
-		 ctx.fillStyle = "#ccc";
-      }
-
-	  // draw triangles to form roof including last_pt
-      ctx.moveTo( last_pt[0] - levels_offset_x, last_pt[1] - levels_offset );
-      ctx.beginPath();
-      ctx.lineTo( roofTip[0], roofTip[1] - levels_offset * 0.7  );
-      ctx.lineTo( at_pt[0] - levels_offset_x, at_pt[1] - levels_offset );
-      ctx.lineTo( last_pt[0] - levels_offset_x, last_pt[1] - levels_offset );
-      ctx.closePath();
-      // send drawing to canvas
-      ctx.fill();
-      ctx.stroke();
-    }
-  }
-  
-  if(!buildings[b].mapped){
-    var latspan = latmax - latmin;
-    var lngspan = lngmax - lngmin;
-    var latspan = Math.max(latspan, lngspan);
-    var lngspan = latspan;
-    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin - latspan / 8,lngmin - lngspan / 8), new L.LatLng(latmax + latspan / 8,lngmax + lngspan / 8));
-    var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
-    buildings[b].mapped = true;
-    map.addLayer(image);
-  }
-}
-
 function writePark(p, canvasid){
   var canvas = document.getElementById(canvasid);
   var ctx = canvas.getContext('2d');
@@ -375,7 +129,12 @@ function writePark(p, canvasid){
     var lngspan = lngmax - lngmin;
     var latspan = Math.max(latspan, lngspan);
     var lngspan = latspan;
-    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin,lngmin), new L.LatLng(latmax,lngmax));
+    var latStretchFactor = 0;
+    var lngStretchFactor = 0;
+    if(parks[p].id == "48891304"){
+    	latStretchFactor = 0.3;
+    }
+    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan*latStretchFactor,lngmin-lngspan*lngStretchFactor), new L.LatLng(latmax+latspan*latStretchFactor,lngmax+lngspan*lngStretchFactor));
     var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
     parks[p].mapped = true;
     map.addLayer(image);
@@ -386,19 +145,14 @@ function ptInPoly(pt, polyCords){
     var pointX = pt[0];
     var pointY = pt[1];
 	var i, j, c = 0;
- 
 	for (i = 0, j = polyCords.length - 1; i < polyCords.length; j = i++)
 	{
- 
 		if (((polyCords[i][1] > pointY) != (polyCords[j][1] > pointY)) && (pointX < (polyCords[j][0] - polyCords[i][0]) * (pointY - polyCords[i][1]) / (polyCords[j][1] - polyCords[i][1]) + polyCords[i][0]))
 		{
 			c = !c;
 		}
- 
 	}
- 
 	return c;
- 
 }
 
 var pix_x_offset = 150; // set to 1/2 the width of the canvas element before calling toPixel
@@ -477,13 +231,9 @@ function $(id){
 
       <div id="buildings">
         <ul>
-          <li>Bibb County Health Department</li>
-          <li>Burke School</li>
-          <li>Lanier Junior High School</li>
-          <li>Howard High School</li>
-          <li>Howard Middle School</li>
-          <li>Hutchings Career Center</li>
-          <li>Rutland High School</li>
+          <li>Double Harvest Field I</li>
+          <li>Double Harvest Field II</li>
+          <li>Double Harvest Field III</li>
         </ul>
       </div><!-- /#buildings -->
       
