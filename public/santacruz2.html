@@ -13,25 +13,22 @@ var parks = [];
     <script type="text/javascript" src="/isometrics/34307507"></script>
 
     <script type="text/javascript">
-var map, mapquest, baseIcon, tree;
+var map, baseIcon, tree;
 function init(){
   tree = new Image();
   tree.onload = function(){ drawParks(); }
   tree.src = "/treeblot.png";
 
   // Stamen's OSM terrain layer
-  //var tileURL = 'http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg';
-  //attribution = 'Map data &copy; 2012 OpenStreetMap contributors, Tiles by Mike Migurski of Stamen Design',
-  
-  var tileURL = "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png";
-  attribution = "Map data &copy; 2012 OpenStreetMap contributors, Tiles by MapQuest";
-  
-  mapquest = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
+  var tileURL = 'http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg';
+  attribution = 'Map data &copy; 2012 OpenStreetMap contributors, Tiles by Mike Migurski of Stamen Design',
+    
+  terrain = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
 
   // initialize the map on the "map" div
   map = new L.Map('map');
   cityll = new L.LatLng(36.97398,-122.03025);
-  map.setView(cityll, 18).addLayer(mapquest);
+  map.setView(cityll, 18).addLayer(terrain);
 
   baseIcon = L.Icon.extend({
     iconUrl: 'http://i.imgur.com/OlCXE.jpg',
@@ -324,14 +321,6 @@ function writeBuilding(b, canvasid){
 	    }
 	  }
 	  //roofTip = newroofTip;
-
-      var wallSlope = ( at_pt[1] - last_pt[1] ) / ( at_pt[0] - last_pt[0] );
-      if(Math.abs( wallSlope ) > 1.3){
-         ctx.fillStyle = "#aaa";
-      }
-      else{
-		 ctx.fillStyle = "#ccc";
-      }
 
 	  // draw triangles to form roof including last_pt
       ctx.moveTo( last_pt[0] - levels_offset_x, last_pt[1] - levels_offset );
