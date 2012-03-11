@@ -11,7 +11,7 @@ var parks = [];
     </script>
     
     <script type="text/javascript">
-var map, terrain, baseIcon, tree;
+var map, terrain, baseIcon, tree, miniIcon;
 function init(){
   var tileURL = "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png";
   attribution = "Map data &copy; 2012 OpenStreetMap contributors, Tiles by MapQuest";
@@ -21,9 +21,14 @@ function init(){
   cityll = new L.LatLng(32.8406946, -83.6324022);
   map.setView(cityll, 12).addLayer(terrain);
 
+  miniIcon = L.Icon.extent({
+    iconSize: new L.Point(20, 36),
+    shadowSize: new L.Point(25, 30),
+    iconAnchor: new L.Point(10, 18),
+    popupAnchor: new L.Point(0, -12)
+  });
+
   baseIcon = L.Icon.extend({
-    iconUrl: 'http://i.imgur.com/OlCXE.jpg',
-    shadowUrl: 'http://google-maps-icons.googlecode.com/files/shadow.png',
     iconSize: new L.Point(30, 36),
     shadowSize: new L.Point(42, 30),
     iconAnchor: new L.Point(15, 18),
@@ -502,7 +507,7 @@ function processOSM(data){
     }
     else{
       // show this node as a marker
-      var marker = new L.Marker( new L.LatLng( data[i].lat, data[i].lon ) );
+      var marker = new L.Marker( new L.LatLng( data[i].lat, data[i].lon ), { icon: new miniIcon() } );
       map.addLayer(marker);
       marker.bindPopup( '<h3>' + (data[i].name || data[i].id) + '</h3>' + tableOfData(data[i]))
       activate_on_hover(marker, null);
