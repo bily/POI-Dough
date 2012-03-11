@@ -97,9 +97,9 @@ get '/isometrics/:wayid' do
 		gotdata.each do |line|
 			if line.index('node id=') != nil
 				mylat = line.slice( line.index('lat=')+5 .. line.length )
-				mylat = mylat.slice(0 .. mylat.index('"') )
+				mylat = mylat.slice(0 .. mylat.index('"') - 1 )
 				mylon = line.slice( line.index('lon=')+5 .. line.length )
-				mylon = mylon.slice(0 .. mylon.index('"') )
+				mylon = mylon.slice(0 .. mylon.index('"') - 1 )
 				if firstpt == ''
 					firstpt = '[ ' + mylat + ', ' + mylon + ' ]'
 				end
@@ -107,11 +107,11 @@ get '/isometrics/:wayid' do
 			elsif line.index('building:levels') != nil
 				# building level count is specified!
 				levels = line.slice( line.index('v=')+3 .. line.length )
-				levels = levels.slice( 0 .. levels.index('"') )
+				levels = levels.slice( 0 .. levels.index('"') - 1 )
 			elsif line.index('k="name"') != nil
 				# building name is specified!
 				name = line.slice( line.index('v=')+3 .. line.length )
-				name = name.slice( 0 .. name.index('"') )
+				name = name.slice( 0 .. name.index('"') - 1 )
 			elsif line.index('/way') != nil
 				# repeat first point and close
         		printout += firstpt + "\n         ],\n"
