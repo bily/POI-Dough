@@ -515,10 +515,17 @@ function activate_way(m, w){
     	latmax: latmax,
     	lngmin: lngmin,
     	lngmax: lngmax,
-    	mapped: false
+    	mapped: false,
+    	draft: true
     };
+    if(buildings.length == 0 || !buildings[buildings.length-1].draft){
+    	buildings.push(b);
+    }
+    else{
+    	buildings[buildings.length-1] = b;
+    }
     m.openPopup();
-    writeBuilding(b, 'popupCanvas');
+    writeBuilding(buildings.length-1, 'popupCanvas');
   });
 }
 var bopon = [ ];
