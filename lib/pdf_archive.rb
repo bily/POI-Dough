@@ -80,7 +80,6 @@ get '/isometrics/:wayid' do
     	res = Net::HTTP.start(url.host, url.port) {|http|
     	  http.get('/api/0.6/way/' + wayid + '/full')
     	}
-    	return res.body
     	
 		gotdata = res.body.split("\n")
 		
