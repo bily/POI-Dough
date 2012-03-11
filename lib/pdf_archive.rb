@@ -269,7 +269,6 @@ get '/osmbbox/:bbox' do
 				line = gotdata[readex]
 			end
 			printout += '}'
-		end
 
 		elsif (line.index('<node') != nil) and (line.index('/>') != nil)
 			# node without special properties, likely part of a way
