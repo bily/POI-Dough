@@ -296,7 +296,7 @@ get '/osmbbox/:bbox' do
 				if line.index('<nd ref="') != nil
 					myid = line.slice( line.index('ref="')+5 .. line.length )
 					myid = myid.slice( 0 .. myid.index('"')-1 )
-					if nodes.has_key(myid)
+					if nodes.has_key?(myid)
 						if wroteway == 0
 							wroteway = 1
 							if isfirst == 0
