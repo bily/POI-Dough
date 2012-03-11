@@ -305,6 +305,7 @@ get '/osmbbox/:bbox' do
 								isfirst = 0
 							end
 							printout += '{wayid:"' + myid + '",user:"'+myusr+'"'
+						end
 						if wrotenodes == 0
 							printout += ',"line":['
 							printout += '[' + nodes[myid].join(',') + ']'
