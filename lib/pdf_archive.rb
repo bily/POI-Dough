@@ -110,7 +110,7 @@ get '/isometrics/:wayid' do
 				# building name is specified!
 				name = line.slice( line.index('v=')+3 .. line.length )
 				name = name.slice( 0 .. name.index('"') )
-			elsif line.index('/way') > -1
+			elsif line.index('/way') != nil
 				# repeat first point and close
         		printout += firstpt + "\n         ],\n"
 
