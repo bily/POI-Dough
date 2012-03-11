@@ -131,26 +131,7 @@ function init(){
 
     // place a marker at the center of the footprint
     var iconUrl = 'http://i.imgur.com/OlCXE.jpg';
-    var fixIcon = null;
-    if(buildings[b].name.indexOf("Central High") > -1){
-      iconUrl = 'http://i.imgur.com/BYYfS.jpg';
-    }
-    else if(buildings[b].name.indexOf("Lanier Junior High") > -1){
-      iconUrl = 'http://i.imgur.com/0yUOm.png';
-      fixIcon = new stretchIcon( iconUrl );
-    }
-    else if(buildings[b].name.indexOf("Howard") > -1){
-      iconUrl = 'http://i.imgur.com/kOeMg.png';
-    }
-    else if(buildings[b].name.indexOf("Health") > -1){
-      iconUrl = 'http://i.imgur.com/vDpsk.gif';
-    }
-    else if(buildings[b].name.indexOf("Rutland") > -1){
-      iconUrl = 'http://i.imgur.com/T0gk4.png';
-    }
-    if(!fixIcon){
-      fixIcon = new baseIcon( iconUrl );
-    }
+    var fixIcon = new baseIcon( iconUrl );
     marker = new L.Marker( new L.LatLng( ctrlat, ctrlng ), { icon: fixIcon } );
     map.addLayer(marker);
     marker.bindPopup( '<h3>' + buildings[b].name + '</h3><canvas id="popupCanvas" width="240" height="240"></canvas>' );
