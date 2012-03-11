@@ -201,10 +201,10 @@ function writeBuilding(b, canvasid){
       
     wallSlope = ( at_pt[1] - next_pt[1] ) / ( at_pt[0] - next_pt[0] );
       if(Math.abs( wallSlope ) > 1){
-         ctx.fillStyle = "#00a";
+         ctx.fillStyle = "#a6abac";
       }
       else{
-         ctx.fillStyle = "#00f";
+         ctx.fillStyle = "#d6dbdc";
       }
 
       // draw current vertex to next vertex
@@ -221,7 +221,7 @@ function writeBuilding(b, canvasid){
     }
     
     // set roof colors
-	ctx.fillStyle = "#ccc";
+	ctx.fillStyle = "#7f7679";  // 127, 118, 121
     ctx.strokeStyle = "#000";
     ctx.strokeWidth = 2;
 
