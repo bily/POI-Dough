@@ -336,6 +336,7 @@ get '/osmbbox/:bbox' do
 				end
 				readex = readex + 1
 				line = gotdata[readex]
+			end
 			if wroteway == 1
 				printout += '}'
 			end
