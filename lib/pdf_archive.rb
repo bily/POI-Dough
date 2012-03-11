@@ -341,6 +341,7 @@ get '/osmbbox/:bbox' do
 		end
 		readex = readex + 1
 	end
+	printout += '])'
 	printout
 end
 
