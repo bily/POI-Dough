@@ -476,7 +476,7 @@ function activate_way(m, w){
 	if(activePoly){
 		map.removeLayer(activePoly);
 	}
-	var wll = w;
+	var wll = w.line;
 	for(var i=0;i<wll.length;i++){
 		wll[i] = new L.LatLng(wll[i][0], wll[i][1]);
 	}
@@ -485,11 +485,37 @@ function activate_way(m, w){
   });
   m.on('click', function(e){
     // show the building sketch and info
+    var latmin = 1000;
+    var latmax = -1000;
+    var lngmin = 1000;
+    var lngmax = -1000;
+    for(var i=0;i<w.line.length;i++){
+        if(w.line[i][0] > latmax){
+          latmax = w.line[i][0];
+        }
+        if(w.line[i][0] < latmin){
+          latmin = w.line[i][0];
+        }
+        if(w.line[i][1] > lngmax){
+          lngmax = w.line[i][1];
+        }
+        if(w.line[i][1] < lngmin){
+          lngmin = w.line[i][1];
+        }
+    }
+    var ctrlat = (latmax + latmin) / 2;
+    var ctrlng = (lngmax + lngmin) / 2;
     var b = {
     	sections: [{
-    		vertices: w,
+    		vertices: w.line,
     		levels: 1
-    	}]
+    	}],
+    	center: [ctrlat, ctrlng],
+    	latmin: latmin,
+    	latmax: latmax,
+    	lngmin: lngmin,
+    	lngmax: lngmax,
+    	mapped: false
     };
     m.openPopup();
     writeBuilding(b, 'popupCanvas');
