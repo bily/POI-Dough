@@ -281,7 +281,7 @@ get '/osmbbox/:bbox' do
 			mylon = mylon.slice( 0 .. mylon.index('"')-1 )
 			nodes[myid] = [ mylat, mylon ]
 
-		elsif(line.find('<way') > -1):
+		elsif line.index('<way') != nil
 			# store basic properties of a way
 			myid = line.slice( line.index('id=')+4 .. line.length )
 			myid = myid.slice( 0 .. myid.index('"')-1 )
