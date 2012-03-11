@@ -219,6 +219,24 @@ function writeBuilding(b, canvasid){
       ctx.fill();
       ctx.stroke();
     }
+    
+    // set roof colors
+	ctx.fillStyle = "#ccc";
+    ctx.strokeStyle = "#000";
+    ctx.strokeWidth = 2;
+
+    // draw a flat roof
+    // more complex roofs benefit by having all ceilings filled in event of failed drawing algorithm
+    var roof_start = toPixel( buildings[b].sections[s].vertices[0], ctrlat, ctrlng, scale );
+    ctx.moveTo( roof_start[0] - levels_offset_x, roof_start[1] - levels_offset );
+    ctx.beginPath();
+	for(var i=1; i<buildings[b].sections[s].vertices.length; i++){
+      var roof_pt = toPixel( buildings[b].sections[s].vertices[i], ctrlat, ctrlng, scale );
+      ctx.lineTo( roof_pt[0] - levels_offset_x, roof_pt[1] - levels_offset );
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
   }
   
   if(!buildings[b].mapped){
