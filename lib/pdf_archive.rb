@@ -162,6 +162,59 @@ get '/isometrics/:wayid' do
 	end
 end
 
+get '/textures/:wayid' do
+  
+	wayid = params[:wayid]
+
+	if wayid != ''
+    	# generate from API: http://www.openstreetmap.org/api/0.6/way/[WAYID]/full
+    	# OSM takes awhile to do this, so you should probably have this done with a real server
+    	url = 'http://www.openstreetmap.org/api/0.6/way/' + wayid + '/full'
+    	url = URI.parse(url)
+    	res = Net::HTTP.start(url.host, url.port) {|http|
+    	  http.get('/api/0.6/way/' + wayid + '/full')
+    	}
+    	
+		gotdata = res.body.split("\n")
+		
+		firstpt = ''
+		levels = '1'
+		name = 'OSM Way'
+      
+		# opening for this building format
+		printout = "parks.push(
+   {
+      vertices: [\n"
+
+		gotdata.each do |line|
+			if line.index('node id=') != nil
+				mylat = line.slice( line.index('lat=')+5 .. line.length )
+				mylat = mylat.slice(0 .. mylat.index('"') - 1 )
+				mylon = line.slice( line.index('lon=')+5 .. line.length )
+				mylon = mylon.slice(0 .. mylon.index('"') - 1 )
+				if firstpt == ''
+					firstpt = '[ ' + mylat + ', ' + mylon + ' ]'
+				end
+				printout += "[ " + mylat + ", " + mylon + " ],\n"
+			elsif line.index('k="name"') != nil
+				# building name is specified!
+				name = line.slice( line.index('v=')+3 .. line.length )
+				name = name.slice( 0 .. name.index('"') - 1 )
+			elsif line.index('/way') != nil
+				# repeat first point and close
+        		printout += firstpt + "\n         ],\n"
+
+        		# report name as OSM building if not set otherwise
+        		# then close the whole object 
+        		printout += '    name: "' + name.sub('"','\\"') + '"'
+        		printout += "   }\n);\n"
+        		break
+        	end
+		end
+    	printout
+	end
+end
+
 get '/pdf' do
   erb :home
 end
