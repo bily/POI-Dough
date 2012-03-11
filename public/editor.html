@@ -504,10 +504,21 @@ function processOSM(data){
       // show this node as a marker
       var marker = new L.Marker( new L.LatLng( data[i].lat, data[i].lon ) );
       map.addLayer(marker);
-      marker.bindPopup( '<h3>' + (data[i].name || data[i].id) + '</h3>')
+      marker.bindPopup( '<h3>' + (data[i].name || data[i].id) + '</h3>' + tableOfData(data[i]))
       activate_on_hover(marker, null);
     }
   }
+}
+function tableOfData(dict){
+  var table = "<table>";
+  for(var k in dict){
+    if(k == "id" || k == "name" || k == "lat" || k == "lon"){
+      continue;
+    }
+    table += "<tr><td>" + k + "</td><td>" + dict[k] + "</td></tr>";
+  }
+  table += "</table>";
+  return table;
 }
 
 function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\\?&]"+nm+"=([^&#]*)";var rx=new RegExp(rxS);var rs=rx.exec(window.location.href);if(!rs){return null;}else{return rs[1];}}
