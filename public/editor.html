@@ -503,7 +503,7 @@ function importOSM(){
   document.body.appendChild(s);
 }
 function processOSM(data){
-  document.getElementById("importButton").removeClass("disabled");
+  document.getElementById("importButton").className.replace("disabled","");
   for(var i=0;i<data.length;i++){
     if(data[i].line){
       // add this way
