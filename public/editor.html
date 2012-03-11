@@ -567,6 +567,10 @@ function processOSM(data){
   document.getElementById("importButton").className = document.getElementById("importButton").className.replace("disabled","");
   for(var i=0;i<data.length;i++){
     if(data[i].line){
+      if(data[i].highway){
+      	//don't mark up roads just yet
+      	continue;
+      }
       // add this way
 	  var marker = new L.Marker( new L.LatLng( data[i].line[0][0], data[i].line[0][1] ), { icon: new miniIcon() } );
       map.addLayer(marker);
