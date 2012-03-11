@@ -3,6 +3,7 @@
   <head>
     <title>POI Dough Editor</title>
     <link rel="stylesheet" href="/leaflet.css" />
+    <link href="/bootstrap.min.css" rel="stylesheet" type="text/css" media="screen"/>
     <!--[if lte IE 8]><link rel="stylesheet" href="/leaflet.ie.css" /><![endif]-->
     <script type="text/javascript" src="/leaflet.js"></script>
     <script type="text/javascript">
@@ -493,6 +494,7 @@ function bop(icon, frame){
 }
 
 function importOSM(){
+  document.getElementById("importButton").className += " disabled";
   var ne = map.getBounds().getNorthEast();
   var sw = map.getBounds().getSouthWest();
   var s = document.createElement('script');
@@ -501,6 +503,7 @@ function importOSM(){
   document.body.appendChild(s);
 }
 function processOSM(data){
+  document.getElementById("importButton").removeClass("disabled");
   for(var i=0;i<data.length;i++){
     if(data[i].line){
       // add this way
@@ -515,7 +518,7 @@ function processOSM(data){
   }
 }
 function tableOfData(dict){
-  var table = "<table>";
+  var table = "<table class='table-condensed table-striped'>";
   for(var k in dict){
     if(k == "id" || k == "name" || k == "lat" || k == "lon"){
       continue;
@@ -552,7 +555,7 @@ function $(id){
 	  
 	  <div class="clear"></div>
 	  <div id="requestor">
-	  	<button class="btn btn-primary" onclick="importOSM()">
+	  	<button id="importButton" class="btn btn-primary" onclick="importOSM()">
 	  	  Import OSM Data
 	  	</button>
 	  </div>
