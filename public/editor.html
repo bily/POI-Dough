@@ -354,7 +354,7 @@ function writeBuilding(b, canvasid){
     var lngspan = lngmax - lngmin;
     var latspan = Math.max(latspan, lngspan);
     var lngspan = latspan;
-    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin,lngmin), new L.LatLng(latmax,lngmax));
+    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/8,lngmin-lngspan/8), new L.LatLng(latmax+latspan/8,lngmax+lngspan/8));
     var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
     buildings[b].mapped = true;
     map.addLayer(image);
@@ -484,13 +484,14 @@ function activate_way(m, w){
 	activePoly = new L.Polygon( wll, { color: "#f00", fillOpacity: 0.3, opacity: 0.65 } );
 	map.addLayer(activePoly);
   });
-  m.on('click', function(e){
-    // show the building sketch and info
-    var latmin = 1000;
-    var latmax = -1000;
-    var lngmin = 1000;
-    var lngmax = -1000;
-    for(var i=0;i<w.line.length;i++){
+  if(w.building == "yes"){
+    m.on('click', function(e){
+      // show the building sketch and info
+      var latmin = 1000;
+      var latmax = -1000;
+      var lngmin = 1000;
+      var lngmax = -1000;
+      for(var i=0;i<w.line.length;i++){
         if(w.line[i][0] > latmax){
           latmax = w.line[i][0];
         }
@@ -503,10 +504,10 @@ function activate_way(m, w){
         if(w.line[i][1] < lngmin){
           lngmin = w.line[i][1];
         }
-    }
-    var ctrlat = (latmax + latmin) / 2;
-    var ctrlng = (lngmax + lngmin) / 2;
-    var b = {
+      }
+      var ctrlat = (latmax + latmin) / 2;
+      var ctrlng = (lngmax + lngmin) / 2;
+      var b = {
     	sections: [{
     		vertices: w.line.slice(0),
     		levels: 1
@@ -518,16 +519,17 @@ function activate_way(m, w){
     	lngmax: lngmax,
     	mapped: false,
     	draft: true
-    };
-    if(buildings.length == 0 || !buildings[buildings.length-1].draft){
+      };
+      if(buildings.length == 0 || !buildings[buildings.length-1].draft){
     	buildings.push(b);
-    }
-    else{
+      }
+      else{
     	buildings[buildings.length-1] = b;
-    }
-    m.openPopup();
-    writeBuilding(buildings.length-1, 'parkCanvas');
-  });
+      }
+      m.openPopup();
+      writeBuilding(buildings.length-1, 'parkCanvas');
+    });
+  }
 }
 var bopon = [ ];
 function bop(icon, frame){
