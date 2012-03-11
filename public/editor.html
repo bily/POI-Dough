@@ -476,7 +476,7 @@ function activate_way(m, w){
 	if(activePoly){
 		map.removeLayer(activePoly);
 	}
-	var wll = w.line;
+	var wll = w.line.slice(0);
 	for(var i=0;i<wll.length;i++){
 		wll[i] = new L.LatLng(wll[i][0], wll[i][1]);
 	}
@@ -507,7 +507,7 @@ function activate_way(m, w){
     var ctrlng = (lngmax + lngmin) / 2;
     var b = {
     	sections: [{
-    		vertices: w.line,
+    		vertices: w.line.slice(0),
     		levels: 1
     	}],
     	center: [ctrlat, ctrlng],
