@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>POI Dough Editor</title>
+    <link rel="stylesheet" href="/leaflet.css" />
+    <!--[if lte IE 8]><link rel="stylesheet" href="/leaflet.ie.css" /><![endif]-->
+    <script type="text/javascript" src="/leaflet.js"></script>
+    <script type="text/javascript">
+var buildings = [];
+var parks = [];
+    </script>
+    
+    <script type="text/javascript">
+var map, terrain, baseIcon, tree;
+function init(){
+  var tileURL = "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png";
+  attribution = "Map data &copy; 2012 OpenStreetMap contributors, Tiles by MapQuest";
+  terrain = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
+
+  map = new L.Map('map');
+  cityll = new L.LatLng(32.8406946, -83.6324022);
+  map.setView(cityll, 12).addLayer(terrain);
+
+  baseIcon = L.Icon.extend({
+    iconUrl: 'http://i.imgur.com/OlCXE.jpg',
+    shadowUrl: 'http://google-maps-icons.googlecode.com/files/shadow.png',
+    iconSize: new L.Point(30, 36),
+    shadowSize: new L.Point(42, 30),
+    iconAnchor: new L.Point(15, 18),
+    popupAnchor: new L.Point(0, -12)
+  }); 
+}
+
+function prepBuildings(){
+  for(var b=0; b<buildings.length; b++){
+    // determine center of whole building, including all sections
+    var latmax = -1000;
+    var latmin = 1000;
+    var lngmax = -1000;
+    var lngmin = 1000;
+    for(var s=0; s<buildings[b].sections.length; s++){
+      for(var v=0; v<buildings[b].sections[s].vertices.length; v++){
+        var pt = buildings[b].sections[s].vertices[v];
+        if(pt[0] > latmax){
+          latmax = pt[0];
+        }
+        if(pt[0] < latmin){
+          latmin = pt[0];
+        }
+        if(pt[1] > lngmax){
+          lngmax = pt[1];
+        }
+        if(pt[1] < lngmin){
+          lngmin = pt[1];
+        }
+      }
+    }
+    var ctrlat = (latmax + latmin) / 2;
+    var ctrlng = (lngmax + lngmin) / 2;
+    buildings[b].center = [ctrlat, ctrlng];
+    buildings[b].latmin = latmin;
+    buildings[b].latmax = latmax;
+    buildings[b].lngmin = lngmin;
+    buildings[b].lngmax = lngmax;
+    buildings[b].mapped = false;
+
+    // place a marker at the center of the footprint
+    var iconUrl = 'http://i.imgur.com/OlCXE.jpg';
+    var fixIcon = new baseIcon( iconUrl );
+    marker = new L.Marker( new L.LatLng( ctrlat, ctrlng ), { icon: fixIcon } );
+    map.addLayer(marker);
+    marker.bindPopup( '<h3>' + buildings[b].name + '</h3><canvas id="popupCanvas" width="240" height="240"></canvas>' );
+    activate_on_hover(marker, b);
+  }
+}
+
+function prepParks(){
+  for(var p=0; p<parks.length; p++){
+    // determine center of park
+    var latmax = -1000;
+    var latmin = 1000;
+    var lngmax = -1000;
+    var lngmin = 1000;
+    for(var v=0; v<parks[p].vertices.length; v++){
+      var pt = parks[p].vertices[v];
+      if(pt[0] > latmax){
+        latmax = pt[0];
+      }
+      if(pt[0] < latmin){
+        latmin = pt[0];
+      }
+      if(pt[1] > lngmax){
+        lngmax = pt[1];
+      }
+      if(pt[1] < lngmin){
+        lngmin = pt[1];
+      }
+    }
+    var ctrlat = (latmax + latmin) / 2;
+    var ctrlng = (lngmax + lngmin) / 2;
+    parks[p].center = [ctrlat, ctrlng];
+    parks[p].latmin = latmin;
+    parks[p].latmax = latmax;
+    parks[p].lngmin = lngmin;
+    parks[p].lngmax = lngmax;
+    parks[p].mapped = false;
+    writePark(p, 'parkCanvas');
+  }
+}
+
+function writeBuilding(b, canvasid){
+  //document.getElementById("overlay").style.display = "block";
+  var canvas = document.getElementById(canvasid);
+
+  ctrlat = buildings[b].center[0];
+  ctrlng = buildings[b].center[1];
+  latmin = buildings[b].latmin;
+  latmax = buildings[b].latmax;
+  lngmin = buildings[b].lngmin;
+  lngmax = buildings[b].lngmax;
+
+  for(var s=0; s<buildings[b].sections.length; s++){
+    // draw the footprint onto the canvas
+    // fetch the canvas context and set color styles
+    pix_x_offset = canvas.width * 1 / 2;
+    pix_y_offset = canvas.height * 1 / 2;
+    var ctx = canvas.getContext('2d');
+
+    // set scale in pixels per degree
+    var scale = Math.min( ( (canvas.width * 1 / 2) - buildings[b].sections[s].levels * 8) / (lngmax - lngmin) * 2, (canvas.height * 1 / 2 - buildings[b].sections[s].levels * 35) / (latmax - latmin) * 2);
+
+    // set a levels offset for this building, tuning based on scale
+    var factor = 1;
+    if(scale < 120000){
+      if(scale < 100000){
+        factor = 0.5;
+      }
+      else{
+        factor = 0.75;
+      }
+    }
+    var levels_offset = buildings[b].sections[s].levels * 35 * factor;
+    var levels_offset_x = buildings[b].sections[s].levels * 8 * factor;
+
+    // set offset to [ center_pixel_x, center_pixel_y ] from upper left corner
+    var offset = [ (latmax - ctrlat) * scale, (ctrlng - lngmin) * scale ];
+
+    // then draw each foot-point, its corresponding ceiling point, and connections
+    // start from the northernmost point and work your way south
+    var sorted = buildings[b].sections[s].vertices.slice(0);
+    sorted.sort( function(pt1, pt2){ return pt2[0] - pt1[0] } );
+
+    for(var v=0; v<sorted.length; v++){
+      var at_pt = toPixel( sorted[v], ctrlat, ctrlng, scale );
+      var last_pt, next_pt;
+      // find points which appeared before and after the current one in SERIES, not in NORTH -> SOUTH
+	  for(var i=0; i<buildings[b].sections[s].vertices.length; i++){
+        if(buildings[b].sections[s].vertices[i][0] == sorted[v][0]){
+		  if(buildings[b].sections[s].vertices[i][1] == sorted[v][1]){
+		    if(i != 0){
+		      last_pt = buildings[b].sections[s].vertices[i-1];
+		    }
+		    else{
+              last_pt = buildings[b].sections[s].vertices[buildings[b].sections[s].vertices.length - 1];
+		    }
+		    last_pt = toPixel( last_pt, ctrlat, ctrlng, scale );
+		    if(i != buildings[b].sections[s].vertices.length-1){
+		      next_pt = buildings[b].sections[s].vertices[i+1];
+		    }
+		    else{
+		      next_pt = buildings[b].sections[s].vertices[0];		    
+		    }
+		    next_pt = toPixel( next_pt, ctrlat, ctrlng, scale );
+		    break;
+		  }
+		}
+	  }
+
+	  // set wall colors
+      ctx.strokeStyle = "#000";
+      ctx.strokeWidth = 1;
+      
+      var wallSlope = ( at_pt[1] - last_pt[1] ) / ( at_pt[0] - last_pt[0] );
+      if(Math.abs( wallSlope ) > 1){
+         ctx.fillStyle = "#a00";
+      }
+
+	  // draw previous vertex to current vertex
+      ctx.moveTo( last_pt[0], last_pt[1] );
+      ctx.beginPath();
+      ctx.lineTo( last_pt[0] - levels_offset_x, last_pt[1] - levels_offset );
+      ctx.lineTo( at_pt[0] - levels_offset_x, at_pt[1] - levels_offset );
+      ctx.lineTo( at_pt[0], at_pt[1] );
+      ctx.closePath();
+      ctx.fill();
+      //ctx.stroke();
+      
+    wallSlope = ( at_pt[1] - next_pt[1] ) / ( at_pt[0] - next_pt[0] );
+      if(Math.abs( wallSlope ) > 1){
+         ctx.fillStyle = "#a00";
+      }
+      else{
+         ctx.fillStyle = "#f00";
+      }
+
+      // draw current vertex to next vertex
+      ctx.beginPath();
+      ctx.moveTo( at_pt[0], at_pt[1] );
+      ctx.lineTo( next_pt[0], next_pt[1] );
+      ctx.lineTo( next_pt[0] - levels_offset_x, next_pt[1] - levels_offset );
+      ctx.lineTo( at_pt[0] - levels_offset_x, at_pt[1] - levels_offset );
+      ctx.closePath();
+
+      // send drawing to canvas
+      ctx.fill();
+      ctx.stroke();
+    }
+    
+    // set roof colors
+	ctx.fillStyle = "#ccc";
+    ctx.strokeStyle = "#000";
+    ctx.strokeWidth = 2;
+    
+    var roofTip = [0, 0];
+    for(var i=0; i<buildings[b].sections[s].vertices.length; i++){
+	  var at_pt = buildings[b].sections[s].vertices[i];
+	  at_pt = toPixel( at_pt, ctrlat, ctrlng, scale );
+      roofTip[0] += at_pt[0] - levels_offset_x;
+      roofTip[1] += at_pt[1] - levels_offset;
+    }
+    roofTip[0] = roofTip[0] / (buildings[b].sections[s].vertices.length);
+    roofTip[1] = roofTip[1] / (buildings[b].sections[s].vertices.length);
+    
+    // draw triangles to form a roof
+    for(var i=buildings[b].sections[s].vertices.length-1; i>=0; i--){
+    //for(var i=0; i<buildings[b].sections[s].vertices.length; i++){
+      var last_pt;
+      if(i != 0){
+        last_pt = buildings[b].sections[s].vertices[i-1];
+      }
+      else{
+        last_pt = buildings[b].sections[s].vertices[buildings[b].sections[s].vertices.length - 1];
+      }
+	  last_pt = toPixel( last_pt, ctrlat, ctrlng, scale );
+	  var next_pt;
+	  if(i != buildings[b].sections[s].vertices.length - 1){
+		next_pt = buildings[b].sections[s].vertices[i+1];
+	  }
+	  else{
+		next_pt = buildings[b].sections[s].vertices[0];		    
+	  }
+	  next_pt = toPixel( next_pt, ctrlat, ctrlng, scale );
+	  var at_pt = buildings[b].sections[s].vertices[i];
+	  at_pt = toPixel( at_pt, ctrlat, ctrlng, scale );
+	  
+	  // calculate whether the current roofTip can be met without crossing lines
+	  var crossesLine = false;
+	  // calculate a line to the roofTip
+	  var roofLine_m = ((at_pt[1] - levels_offset) - roofTip[1]) / ((at_pt[0] - levels_offset_x) - roofTip[0] );
+	  var roofLine_i = (at_pt[1] - levels_offset) - (at_pt[0] - levels_offset_x) * roofLine_m;
+	  var newroofTip = roofTip;
+	  for(var f=0; f<buildings[b].sections[s].vertices.length; f++){
+	    // calculate a line from pt(i) to pt(i+1)
+	    var wallLine_a = buildings[b].sections[s].vertices[f];
+		wallLine_a = toPixel( wallLine_a, ctrlat, ctrlng, scale );
+		var wallLibe_b;
+		if(f != buildings[b].sections[s].vertices.length - 1){
+	      wallLine_b = buildings[b].sections[s].vertices[f+1];
+	    }
+	    else{
+	      wallLine_b = buildings[b].sections[s].vertices[0];	    
+	    }
+		wallLine_b = toPixel( wallLine_b, ctrlat, ctrlng, scale );
+
+	    var wallLine_m = (wallLine_a[1] - wallLine_b[1]) / (wallLine_a[0] - wallLine_b[0]);
+	    var wallLine_i = (wallLine_a[1] - levels_offset) - ((wallLine_a[0] - levels_offset_x) * wallLine_m);
+	    
+	    var intersect_x = (roofLine_i - wallLine_i) / (wallLine_m - roofLine_m);
+	    if((intersect_x > wallLine_a[0] + 7 && intersect_x < wallLine_b[0] - 7) || (intersect_x < wallLine_a[0] - 7 && intersect_x > wallLine_b[0] + 7)){
+	      // intersect falls on the visible part of the wall
+	      if((intersect_x > newroofTip[0] + 7 && intersect_x < at_pt[0] - levels_offset_x - 7) || (intersect_x < newroofTip[0] - 7 && intersect_x > at_pt[0] - levels_offset_x + 7)){
+	        // intersect would occur before the roof line met the roof
+	        // calculate a roofline halfway between the at_pt corner and the intersection point
+	        var newroof_x = (at_pt[0] - levels_offset_x) + 0.5 * ( intersect_x - (at_pt[0] - levels_offset_x) );
+	        var intersect_y = intersect_x * wallLine_m + wallLine_i;
+	        var newroof_y = (at_pt[1] - levels_offset) + 0.5 * ( intersect_y - (at_pt[1] - levels_offset) );
+	        newroofTip = [ newroof_x, newroof_y ];
+	      }
+	    }
+	  }
+	  
+	  // also move roofTip 50% closer if the current roof tip is too far away (100 pixels)
+	  if( Math.pow(newroofTip[1] - (at_pt[1] - levels_offset), 2) + Math.pow(newroofTip[0] - (at_pt[0] - levels_offset_x), 2)  > 10000){
+	    var newroof_x = (at_pt[0] - levels_offset_x) + 0.5 * ( roofTip[0] - (at_pt[0] - levels_offset_x) );
+	    var newroof_y = (at_pt[1] - levels_offset) + 0.5 * ( roofTip[1] - (at_pt[1] - levels_offset) );
+	    newroofTip = [ newroof_x, newroof_y ];
+	  }
+	  
+	  // if the roof was moved, connect last point, old roof, and new roof
+	  // at_pt would be in line with the other two, so it wouldn't make a triangle
+	  if((newroofTip[0] != roofTip[0]) || (newroofTip[1] != roofTip[1])){
+	    // don't draw the connecting panel if it's too big
+	    var tooBigPanel = false;
+	    if( Math.pow(newroofTip[1] - (last_pt[1] - levels_offset), 2) + Math.pow(newroofTip[0] - (last_pt[0] - levels_offset_x), 2)  > 5000){
+	      tooBigPanel = true;
+  	    }
+	    if( Math.pow(newroofTip[1] - roofTip[1], 2) + Math.pow(newroofTip[0] - roofTip[0], 2)  > 5000){
+	      tooBigPanel = true;
+  	    }
+  	    if(!tooBigPanel){
+          ctx.moveTo( newroofTip[0], newroofTip[1] );
+          ctx.beginPath();
+          ctx.lineTo( roofTip[0], roofTip[1] - levels_offset * 0.7 );
+          ctx.lineTo( last_pt[0] - levels_offset_x, last_pt[1] - levels_offset );
+          ctx.lineTo( newroofTip[0], newroofTip[1] - levels_offset * 0.7  );
+          ctx.closePath();
+	      roofTip = newroofTip;
+	      ctx.fill();
+	      ctx.stroke();
+	    }
+	  }
+	  //roofTip = newroofTip;
+
+      var wallSlope = ( at_pt[1] - last_pt[1] ) / ( at_pt[0] - last_pt[0] );
+      if(Math.abs( wallSlope ) > 1.3){
+         ctx.fillStyle = "#aaa";
+      }
+      else{
+		 ctx.fillStyle = "#ccc";
+      }
+
+	  // draw triangles to form roof including last_pt
+      ctx.moveTo( last_pt[0] - levels_offset_x, last_pt[1] - levels_offset );
+      ctx.beginPath();
+      ctx.lineTo( roofTip[0], roofTip[1] - levels_offset * 0.7  );
+      ctx.lineTo( at_pt[0] - levels_offset_x, at_pt[1] - levels_offset );
+      ctx.lineTo( last_pt[0] - levels_offset_x, last_pt[1] - levels_offset );
+      ctx.closePath();
+      // send drawing to canvas
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
+  
+  if(!buildings[b].mapped){
+    var latspan = latmax - latmin;
+    var lngspan = lngmax - lngmin;
+    var latspan = Math.max(latspan, lngspan);
+    var lngspan = latspan;
+    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin - latspan / 3,lngmin - lngspan / 3), new L.LatLng(latmax + latspan / 3,lngmax + lngspan / 3));
+    var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
+    buildings[b].mapped = true;
+    map.addLayer(image);
+  }
+}
+
+function writePark(p, canvasid){
+  var canvas = document.getElementById(canvasid);
+  var ctx = canvas.getContext('2d');
+
+  var ctrlat = parks[p].center[0];
+  var ctrlng = parks[p].center[1];
+  var latmin = parks[p].latmin;
+  var latmax = parks[p].latmax;
+  var lngmin = parks[p].lngmin;
+  var lngmax = parks[p].lngmax;
+  var levels = 0;
+  
+    // set scale in pixels per degree
+    var scale = Math.min( ( (canvas.width * 1 / 2) - levels * 8) / (lngmax - lngmin) * 2, (canvas.height * 1 / 2 - levels * 35) / (latmax - latmin) * 2);
+
+    // set a levels offset for this building, tuning based on scale
+    var factor = 1;
+    if(scale < 120000){
+      if(scale < 100000){
+        factor = 0.5;
+      }
+      else{
+        factor = 0.75;
+      }
+    }
+    var levels_offset = levels * 35 * factor;
+    var levels_offset_x = levels * 8 * factor;
+
+    // set offset to [ center_pixel_x, center_pixel_y ] from upper left corner
+    var offset = [ (latmax - ctrlat) * scale, (ctrlng - lngmin) * scale ];
+  var icon = tree;
+  for(var x=0; x<canvas.width; x+=25){
+	for(var y=0; y<canvas.height; y+=25){
+	    ctx.drawImage(icon, x, y, 25, 25);
+	}
+  }
+      
+  var poly = parks[p].vertices;
+  for(var i=0; i<poly.length; i++){
+	var at_pt = poly[i];
+	at_pt = toPixel( at_pt, ctrlat, ctrlng, scale );
+	poly[i] = at_pt;  // [x, y]
+  }
+  imgData = ctx.getImageData(0, 0, 300, 300);
+  for(var x=0; x<300; x++){
+	for(var y=0; y<300; y++){
+	  if(!ptInPoly([x,y], poly)){
+	    //for(var xplus=0;xplus<3;xplus++){
+	      //for(var yplus=0;yplus<3;yplus++){
+		    //imgData.data[(y+yplus)*4*300+(x+xplus)*4+3] = 0;
+		    imgData.data[y*4*300+x*4+3] = 0;
+	      //}
+	    //}
+	  }
+	}
+  }
+  ctx.putImageData(imgData, 0, 0);
+  
+  if(!parks[p].mapped){
+    var latspan = latmax - latmin;
+    var lngspan = lngmax - lngmin;
+    var latspan = Math.max(latspan, lngspan);
+    var lngspan = latspan;
+    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin,lngmin), new L.LatLng(latmax,lngmax));
+    var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
+    parks[p].mapped = true;
+    map.addLayer(image);
+  }
+}
+
+function ptInPoly(pt, polyCords){
+    var pointX = pt[0];
+    var pointY = pt[1];
+	var i, j, c = 0;
+	for (i = 0, j = polyCords.length - 1; i < polyCords.length; j = i++){
+		if (((polyCords[i][1] > pointY) != (polyCords[j][1] > pointY)) && (pointX < (polyCords[j][0] - polyCords[i][0]) * (pointY - polyCords[i][1]) / (polyCords[j][1] - polyCords[i][1]) + polyCords[i][0])){
+			c = !c;
+		}
+	}
+	return c;
+}
+
+var pix_x_offset = 150; // set to 1/2 the width of the canvas element before calling toPixel
+var pix_y_offset = 150; // set to 1/2 the height of the canvas element before calling toPixel
+function toPixel(latlng, ctrlat, ctrlng, scale){
+  var pix_x = Math.round( (latlng[1] - ctrlng) * scale + pix_x_offset);
+  var pix_y = Math.round( (ctrlat - latlng[0]) * scale + pix_y_offset);
+  return [ pix_x, pix_y ];
+}
+function activate_on_hover(m, b){
+  m.on('mouseover', function(e){
+    // glow icon?
+    var boponalready = false;
+    for(var j=0; j<bopon.length; j++){
+      if(bopon[j] == m._icon){
+        return;
+      }
+    }
+    m._icon.style.borderTopWidth = "0px";
+    bopon.push(m._icon);
+    bop(m._icon, 0);
+  });
+  m.on('click', function(e){
+    // show the building sketch and info
+    m.openPopup();
+    writeBuilding(b, 'popupCanvas');
+  });
+}
+var bopon = [ ];
+function bop(icon, frame){
+  setTimeout(function(){
+    if(frame < 10){
+      icon.style.borderTopWidth = frame + "px";
+    }
+    else{
+      icon.style.borderTopWidth = (20 - frame) + "px";
+    }
+    frame++;
+    if(frame < 20){
+      bop(icon, frame);
+    }
+    else{
+      for(var b=0; b<bopon.length; b++){
+        if(bopon[b] == icon){
+          bopon.splice(b, 1);
+        }
+      }
+    }
+  }, 40)
+}
+
+function importOSM(){
+  var ne = map.getBounds().getNorthEast();
+  var sw = map.getBounds().getSouthWest();
+  var s = document.createElement('script');
+  s.src = '/osmbbox/' + sw.lng + ',' +  sw.lat + ',' + ne.lng + ',' + ne.lat;
+  s.type = "text/javascript";
+  document.body.appendChild(s);
+}
+
+function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\\?&]"+nm+"=([^&#]*)";var rx=new RegExp(rxS);var rs=rx.exec(window.location.href);if(!rs){return null;}else{return rs[1];}}
+function $(id){
+  return document.getElementById(id);
+}
+    </script>
+    <style type="text/css">
+.leaflet-marker-icon{
+  border: 1px solid transparent;
+  border-radius:8px;
+}
+    </style>
+    <link rel="stylesheet" href="/reset.css" />
+    <link rel="stylesheet" href="/isometric.css" />
+  </head>
+  <body onload="init()">
+    <div id="column">
+
+      <div id="nav">
+        <ul>
+          <li><a href="https://github.com/mapmeld/POI-Dough">GitHub</a></li>
+          <li><a href="http://learnosm.org">OpenStreetMap</a></li>
+        </ul>
+      </div><!-- /#nav -->
+	  
+	  <div class="clear"></div>
+	  <div id="requestor">
+	  	<button class="btn btn-primary" onclick="importOSM()">
+	  	  Import OSM Data
+	  	</button>
+	  </div>
+
+      <div class="clear"></div>
+      <div id="selector">
+		<ul id="itemlist">
+		</ul>
+      </div>
+      
+    </div><!-- /#column -->
+
+    <div id="map-container">
+      <div id="map"></div>
+    </div><!-- /#map-container -->
+    
+    <div id="overlay">
+    	<canvas id="parkCanvas" width="300" height="300" style="display:none"></canvas>
+    </div><!-- /#overlay -->
+
+  </body>
+</html>

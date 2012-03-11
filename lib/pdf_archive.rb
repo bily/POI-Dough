@@ -216,6 +216,134 @@ get '/textures/:wayid' do
 	end
 end
 
+
+get '/osmbbox/:bbox' do
+	bbox = params[:bbox]
+    url = 'http://www.openstreetmap.org/api/0.6/map?bbox=' + bbox
+    url = URI.parse(url)
+    res = Net::HTTP.start(url.host, url.port) {|http|
+    	http.get('/api/0.6/map/?bbox=' + bbox)
+    }
+	gotdata = res.body.split("\n")
+	index = 0
+	readex = 0
+	isfirst = 1
+	nodes = {} # used to match nodes with ways
+	printout = 'processOSM(['
+	while readex < gotdata.length
+		line = gotdata[readex]
+		if (line.index('<node') != nil) and (line.index('/>') == nil)
+			# this node has tags! share it with all OSM services
+			myid = line.slice( line.index('id=')+4 .. line.length )
+			myid = myid.slice( 0 .. myid.index('"')-1 )
+			mylat = line.slice( line.index('lat=')+5 .. line.length )
+			mylat = mylat.slice( 0 .. mylat.index('"')-1 )
+			mylon = line.slice( line.index('lon=')+5 .. line.length )
+			mylon = mylon.slice( 0 .. mylon.index('"')-1 )
+			myusr = line.slice( line.index('user=')+6 .. line.length )
+			myusr = myusr.slice( 0 .. myusr.index('"')-1 )
+
+			nodes[myid] = [ mylat, mylon ]
+
+			# skip the preceding comma on the first node
+			if isfirst == 0
+				printout += ','
+			else
+				isfirst = 0
+			end
+			
+			# write the basic node properties
+			# possible issues with UTF-8? Try it on accented placenames
+			printout += '{id:"' + myid + '",lat:'+mylat+',lon:'+mylon+',user:"'+myusr+'"'
+			readex = readex + 1
+			line = gotdata[readex]
+			
+			# import and write additional node keys and values
+			while line.index('node>') == nil
+				myk = line.slice( line.index('k="')+3 .. line.length )
+				myk = myk.slice( 0 .. myk.index('"')-1 )
+				myv = line.slice( line.index('v="')+3 .. line.length )
+				myv = myv.slice( 0 .. myv.find('"')-1 )
+				printout += ',"' + myk + '":"' + myv + '"'
+				readex = readex + 1
+				line = gotdata[readex]
+			end
+			printout += '}'
+		end
+
+		elsif (line.index('<node') != nil) and (line.index('/>') != nil)
+			# node without special properties, likely part of a way
+			# store it in case called later
+			myid = line.slice( line.index('id=')+4 .. line.length )
+			myid = myid.slice( 0 .. myid.index('"')-1 )
+			mylat = line.slice( line.index('lat=')+5 .. line.length )
+			mylat = mylat.slice( 0 .. mylat.index('"')-1 )
+			mylon = line.slice( line.index('lon=')+5 .. line.length )
+			mylon = mylon.slice( 0 .. mylon.index('"')-1 )
+			nodes[myid] = [ mylat, mylon ]
+
+		elsif(line.find('<way') > -1):
+			# store basic properties of a way
+			myid = line.slice( line.index('id=')+4 .. line.length )
+			myid = myid.slice( 0 .. myid.index('"')-1 )
+			myusr = line.slice( line.index('user=')+6 .. line.length )
+			myusr = myusr.slice( 0 .. myusr.index('"')-1 )
+			wroteway = 0
+			wrotenodes = 0
+			readex = readex + 1
+			line = gotdata[readex]
+			while line.index('way>') == nil
+				# if special=lines, print all of the known nodes making up the way
+				if line.index('<nd ref="') != nil
+					myid = line.slice( line.index('ref="')+5 .. line.length )
+					myid = myid.slice( 0 .. myid.index('"')-1 )
+					if nodes.has_key(myid)
+						if wroteway == 0
+							wroteway = 1
+							if isfirst == 0
+								printout += ','
+							else
+								isfirst = 0
+							end
+							printout += '{wayid:"' + myid + '",user:"'+myusr+'"'
+						if wrotenodes == 0
+							printout += ',"line":['
+							printout += '[' + nodes[myid].join(',') + ']'
+							wrotenodes = 1
+						else
+							printout += ',[' + nodes[myid].join(',') + ']'
+						end
+				# print keys and values for ways with this information
+				elsif line.index('k="') != nil
+					if wrotenodes == 1
+						printout += ']'
+						wrotenodes = 2
+					elsif wroteway == 0
+						wroteway = 1
+						if isfirst == 0
+							printout += ','
+						else
+							isfirst = 0
+						end
+						printout += '{wayid:"' + myid + '",user:"'+myusr+'"'
+					end
+					myk = line.slice( line.index('k="')+3 .. line.length )
+					myk = myk.slice( 0 .. myk.index('"')-1 )
+					myv = line.slice( line.index('v="')+3 .. line.length )
+					myv = myv.slice( 0 .. myv.index('"')-1 )
+					printout += ',"' + myk + '":"' + myv + '"'
+				end
+				readex = readex + 1
+				line = gotdata[readex]
+			if wroteway == 1
+				printout += '}'
+			end
+		end
+		readex = readex + 1
+	end
+	printout
+end
+
 get '/pdf' do
   erb :home
 end
