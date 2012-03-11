@@ -21,7 +21,7 @@ function init(){
   cityll = new L.LatLng(32.8406946, -83.6324022);
   map.setView(cityll, 12).addLayer(terrain);
 
-  miniIcon = L.Icon.extent({
+  miniIcon = L.Icon.extend({
     iconSize: new L.Point(20, 36),
     shadowSize: new L.Point(25, 30),
     iconAnchor: new L.Point(10, 18),
