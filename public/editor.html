@@ -6,6 +6,7 @@
     <link href="/bootswatch.min.css" rel="stylesheet" type="text/css" media="screen"/>
     <!--[if lte IE 8]><link rel="stylesheet" href="/leaflet.ie.css" /><![endif]-->
     <script type="text/javascript" src="/leaflet.js"></script>
+    <script type="text/javascript" src="/jscolor/jscolor.js"></script>
     <script type="text/javascript">
 var buildings = [ ];
 var parks = [ ];
@@ -489,7 +490,7 @@ function activate_way(m, w){
     m.on('click', function(e){
       if(promoted[w.wayid]){
         var building = buildings[promoted[w.wayid].index];
-        var popupContent = 'Effect: ' + promoted[w.wayid].effect + '<br/>Color: ' + promoted[w.wayid].color;
+        var popupContent = 'Effect: ' + promoted[w.wayid].effect + '<br/>Color: <input class="color" value="' + promoted[w.wayid].color + '"/>';
         var popup = new L.Popup();
 		popup.setLatLng(new L.LatLng( building.center[0], building.center[1] ));
 		popup.setContent(popupContent);
