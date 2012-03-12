@@ -116,6 +116,38 @@ function prepParks(){
   }
 }
 
+function darken(hexcolor){
+	var rgb = [
+		parseInt(hexcolor.substring(0,2), 16),
+		parseInt(hexcolor.substring(2,4), 16),
+		parseInt(hexcolor.substring(6), 16)
+	];
+	rgb[0] = Math.max(0, 0.75 * rgb[0]);
+	rgb[1] = Math.max(0, 0.75 * rgb[1]);
+	rgb[2] = Math.max(0, 0.75 * rgb[2]);
+	hexcolor = rgb[0].toString(16);
+	if(rgb[0] < 16){
+		rgb[0] = "0" + rgb[0].toString(16);
+	}
+	else{
+		rgb[0] = rgb[0].toString(16);
+	}
+	if(rgb[1] < 16){
+		rgb[1] = "0" + rgb[1].toString(16);
+	}
+	else{
+		rgb[1] = rgb[1].toString(16);
+	}
+	if(rgb[2] < 16){
+		rgb[2] = "0" + rgb[2].toString(16);
+	}
+	else{
+		rgb[2] = rgb[2].toString(16);
+	}
+	hexcolor = rgb.join("");
+	return hexcolor;
+}
+
 function writeBuilding(b, canvasid){
   //document.getElementById("overlay").style.display = "block";
   var canvas = document.getElementById(canvasid);
@@ -206,10 +238,10 @@ function writeBuilding(b, canvasid){
       
     wallSlope = ( at_pt[1] - next_pt[1] ) / ( at_pt[0] - next_pt[0] );
       if(Math.abs( wallSlope ) > 1){
-         ctx.fillStyle = "#a00";
+         ctx.fillStyle = "#" + darken(buildings[b].color);
       }
       else{
-         ctx.fillStyle = "#f00";
+         ctx.fillStyle = "#" + buildings[b].color;
       }
 
       // draw current vertex to next vertex
@@ -445,6 +477,14 @@ function ptInPoly(pt, polyCords){
 	return c;
 }
 
+function changeColor(wayid, hexcolor){
+	promoted[wayid].color = hexcolor;
+	buildings[promoted[wayid].index] = hexcolor;
+	map.removeLayer(buildings[promoted[wayid].index].mapped);
+	buildings[promoted[wayid].index].mapped = false;
+	writeBuilding(promoted[wayid].index, 'parkCanvas');
+}
+
 var pix_x_offset = 150; // set to 1/2 the width of the canvas element before calling toPixel
 var pix_y_offset = 150; // set to 1/2 the height of the canvas element before calling toPixel
 function toPixel(latlng, ctrlat, ctrlng, scale){
@@ -465,13 +505,13 @@ function activate_on_hover(m, b){
     bopon.push(m._icon);
     bop(m._icon, 0);
   });
-  if(b != null){
+  /*if(b != null){
     m.on('click', function(e){
       // show the building sketch and info
       m.openPopup();
       writeBuilding(b, 'popupCanvas');
     });
-  }
+  }*/
 }
 var activePoly;
 function activate_way(m, w){
@@ -490,7 +530,7 @@ function activate_way(m, w){
     m.on('click', function(e){
       if(promoted[w.wayid]){
         var building = buildings[promoted[w.wayid].index];
-        var popupContent = 'Effect: ' + promoted[w.wayid].effect + '<br/>Color: <input id="colorPick" class="color" value="' + promoted[w.wayid].color + '"/>';
+        var popupContent = 'Effect: ' + promoted[w.wayid].effect + '<br/>Color: <input id="colorPick" class="color" onchange="changeColor("'w.wayid'", this.value)"/>';
         var popup = new L.Popup();
 		popup.setLatLng(new L.LatLng( building.center[0], building.center[1] ));
 		popup.setContent(popupContent);
@@ -530,6 +570,7 @@ function activate_way(m, w){
     	latmax: latmax,
     	lngmin: lngmin,
     	lngmax: lngmax,
+    	color: "ff0000",
     	mapped: false,
     	draft: true
       };
