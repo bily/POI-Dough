@@ -200,10 +200,10 @@ function writeBuilding(b, canvasid){
   var lngspan = lngmax - lngmin;
   var latrestrict, lngrestrict;
   if(latspan > lngspan){
-    latrestrict = 35 * maxlevel + 300 * (latspan / lngspan);
+    latrestrict = 35 * (maxlevel+0.5) + 300 * (latspan / lngspan);
     lngrestrict = 8 * maxlevel + 300;
     canvas.width = 300;
-    canvas.height = parseInt(latrestrict / lngrestrict * 300);
+    canvas.height = latrestrict;
   }
   else{
     lngrestrict = 8 * maxlevel + 300 * (lngspan / latspan);
