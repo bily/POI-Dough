@@ -190,26 +190,16 @@ function writeBuilding(b, canvasid){
   var latmax = buildings[b].latmax;
   var lngmin = buildings[b].lngmin;
   var lngmax = buildings[b].lngmax;
-
-  var maxlevel = 0;
-  for(var s=0;s<buildings[b].sections.length;s++){
-  	maxlevel = Math.max(buildings[b].sections[s].levels, maxlevel);
-  }
-
   var latspan = latmax - latmin;
   var lngspan = lngmax - lngmin;
-  var latrestrict, lngrestrict;
+
   if(latspan > lngspan){
-    latrestrict = 35 * (maxlevel+0.5) + 300 * (latspan / lngspan);
-    lngrestrict = 8 * maxlevel + 300;
-    canvas.width = 300;
-    canvas.height = latrestrict;
+  	canvas.height = parseInt( latspan / lngspan * 300 );
+  	canvas.width = 300;
   }
   else{
-    lngrestrict = 8 * maxlevel + 300 * (lngspan / latspan);
-    latrestrict = 35 * maxlevel + 300;
-    canvas.width = parseInt(lngrestrict / latrestrict * 300);
     canvas.height = 300;
+  	canvas.width = parseInt( lngspan / latspan * 300 );
   }
 
   for(var s=0; s<buildings[b].sections.length; s++){
@@ -220,13 +210,7 @@ function writeBuilding(b, canvasid){
     var ctx = canvas.getContext('2d');
 
     // set scale in pixels per degree
-    var scale = Math.min(
-    	((canvas.width * 1 / 2) - buildings[b].sections[s].levels * 8) /
-    	(lngmax - lngmin) * 2,
-    	
-    	(canvas.height * 1 / 2 - buildings[b].sections[s].levels * 35) /
-    	(latmax - latmin) * 2
-    );
+    var scale = Math.min( ( (canvas.width * 1 / 2) - buildings[b].sections[s].levels * 8) / (lngmax - lngmin) * 2, (canvas.height * 1 / 2 - buildings[b].sections[s].levels * 35) / (latmax - latmin) * 2);
 
     // set a levels offset for this building, tuning based on scale
     var factor = 1;
@@ -442,7 +426,7 @@ function writeBuilding(b, canvasid){
   }
   
   if(!buildings[b].mapped){
-    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/8,lngmin-lngspan/8), new L.LatLng(latmax + latspan/8 + ( latspan / 300 * maxlevel * 35),lngmax+lngspan/8));
+    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/8,lngmin-lngspan/8), new L.LatLng(latmax+latspan/8,lngmax+lngspan/8));
     var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
     buildings[b].mapped = image;
     map.addLayer(image);
@@ -538,8 +522,8 @@ function changeColor(wayid){
 var pix_x_offset = 150; // set to 1/2 the width of the canvas element before calling toPixel
 var pix_y_offset = 150; // set to 1/2 the height of the canvas element before calling toPixel
 function toPixel(latlng, ctrlat, ctrlng, scale){
-  pix_x_offset = document.getElementById("parkCanvas").width / 2;
-  pix_y_offset = document.getElementById("parkCanvas").height / 2;  
+  pix_x_offset = $("parkCanvas")[0].width / 2;
+  pix_x_offset = $("parkCanvas")[0].width / 2;  
   var pix_x = Math.round( (latlng[1] - ctrlng) * scale + pix_x_offset);
   var pix_y = Math.round( (ctrlat - latlng[0]) * scale + pix_y_offset);
   return [ pix_x, pix_y ];
