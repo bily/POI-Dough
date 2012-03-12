@@ -418,9 +418,9 @@ function writeBuilding(b, canvasid){
   	    if(!tooBigPanel){
           ctx.moveTo( newroofTip[0], newroofTip[1] );
           ctx.beginPath();
-          ctx.lineTo( roofTip[0], roofTip[1] - levels_offset * 0.7 );
+          ctx.lineTo( parseInt(roofTip[0] - 8 * 0.7, parseInt(roofTip[1] - 35 * 0.7 );
           ctx.lineTo( last_pt[0] - levels_offset_x, last_pt[1] - levels_offset );
-          ctx.lineTo( newroofTip[0], newroofTip[1] - levels_offset * 0.7  );
+          ctx.lineTo( parseInt(newroofTip[0] - 8 * 0.7), parseInt(newroofTip[1] - 35 * 0.7)  );
           ctx.closePath();
 	      roofTip = newroofTip;
 	      ctx.fill();
@@ -440,7 +440,7 @@ function writeBuilding(b, canvasid){
 	  // draw triangles to form roof including last_pt
       ctx.moveTo( last_pt[0] - levels_offset_x, last_pt[1] - levels_offset );
       ctx.beginPath();
-      ctx.lineTo( roofTip[0], roofTip[1] - levels_offset * 0.7  );
+      ctx.lineTo( parseInt(roofTip[0] - 8 * 0.7), parseInt(roofTip[1] - 35 * 0.7 ) );
       ctx.lineTo( at_pt[0] - levels_offset_x, at_pt[1] - levels_offset );
       ctx.lineTo( last_pt[0] - levels_offset_x, last_pt[1] - levels_offset );
       ctx.closePath();
