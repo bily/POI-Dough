@@ -40,7 +40,9 @@ function init(){
     shadowSize: new L.Point(42, 30),
     iconAnchor: new L.Point(15, 18),
     popupAnchor: new L.Point(0, -12)
-  }); 
+  });
+  
+  $("#colorPick").colorPicker();
 }
 
 function prepBuildings(){
@@ -562,9 +564,16 @@ function activate_way(m, w){
       if(promoted[w.wayid]){
         var building = buildings[promoted[w.wayid].index];
         $('#promote-name')[0].innerHTML = w.name || w.designation || w.id;
-        $('#promote-effect')[0].innerHTML = w.effect;
+        $('#promote-effect')[0].innerHTML = promoted[w.wayid].effect;
+        $('#build-levels')[0].value = buildings[promoted[w.wayid].index].sections[0].levels;
+        $('#build-levels').on("change",
+        	function(){
+        		buildings[promoted[w.wayid].index].sections[0].levels = parseInt( $('#build-levels')[0].value );
+        		changeColor( w.wayid );
+        	}
+        );
         $('#colorPick').value = promoted[w.wayid].color;
-		$('#colorPick').colorPicker().on("change",
+		$('#colorPick').on("change",
 			function(){
 				changeColor( w.wayid )
 			}
@@ -727,6 +736,8 @@ function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\
 	  		<span class="help-inline" id="promote-name"></span>
 	  		<label>Effect</label>
 	  		<span class="help-inline" id="promote-effect"></span>
+	  		<label>Levels</label>
+	  		<input id="build-levels" type="text" value="1"/>
 	  		<div>
 		  		<label for="colorPick">Color</label>
 	  			<input id="colorPick" type="text" value="#000000"/>
