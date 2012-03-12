@@ -523,7 +523,7 @@ var pix_x_offset = 150; // set to 1/2 the width of the canvas element before cal
 var pix_y_offset = 150; // set to 1/2 the height of the canvas element before calling toPixel
 function toPixel(latlng, ctrlat, ctrlng, scale){
   pix_x_offset = document.getElementById("parkCanvas").width / 2;
-  pix_x_offset = document.getElementById("parkCanvas").width / 2;  
+  pix_y_offset = document.getElementById("parkCanvas").height / 2;  
   var pix_x = Math.round( (latlng[1] - ctrlng) * scale + pix_x_offset);
   var pix_y = Math.round( (ctrlat - latlng[0]) * scale + pix_y_offset);
   return [ pix_x, pix_y ];
