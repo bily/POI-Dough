@@ -490,11 +490,13 @@ function activate_way(m, w){
     m.on('click', function(e){
       if(promoted[w.wayid]){
         var building = buildings[promoted[w.wayid].index];
-        var popupContent = 'Effect: ' + promoted[w.wayid].effect + '<br/>Color: <input class="color" value="' + promoted[w.wayid].color + '"/>';
+        var popupContent = 'Effect: ' + promoted[w.wayid].effect + '<br/>Color: <input id="colorPick" class="color" value="' + promoted[w.wayid].color + '"/>';
         var popup = new L.Popup();
 		popup.setLatLng(new L.LatLng( building.center[0], building.center[1] ));
 		popup.setContent(popupContent);
 		map.openPopup(popup);
+		var myPicker = new jscolor.color(document.getElementById('colorPick'), {})
+		myPicker.fromString(promoted[w.wayid].color);
   	    return;
       }
       // show the building sketch and info
@@ -539,7 +541,7 @@ function activate_way(m, w){
       }
       m.openPopup();
       writeBuilding(buildings.length-1, 'parkCanvas');
-      promoted[w.wayid] = {index: buildings.length-1, type:"building", effect: "3Droof", color: "#ff0000" };
+      promoted[w.wayid] = {index: buildings.length-1, type:"building", effect: "3Droof", color: "ff0000" };
     });
   }
 }
