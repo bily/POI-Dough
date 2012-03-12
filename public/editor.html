@@ -7,12 +7,13 @@
     <!--[if lte IE 8]><link rel="stylesheet" href="/leaflet.ie.css" /><![endif]-->
     <script type="text/javascript" src="/leaflet.js"></script>
     <script type="text/javascript">
-var buildings = [];
-var parks = [];
+var buildings = [ ];
+var parks = [ ];
     </script>
     
     <script type="text/javascript">
 var map, terrain, baseIcon, tree, miniIcon;
+var promoted = { };
 function init(){
   var tileURL = "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png";
   attribution = "Map data &copy; 2012 OpenStreetMap contributors, Tiles by MapQuest";
@@ -356,7 +357,7 @@ function writeBuilding(b, canvasid){
     var lngspan = latspan;
     var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/8,lngmin-lngspan/8), new L.LatLng(latmax+latspan/8,lngmax+lngspan/8));
     var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
-    buildings[b].mapped = true;
+    buildings[b].mapped = image;
     map.addLayer(image);
   }
 }
@@ -426,7 +427,7 @@ function writePark(p, canvasid){
     var lngspan = latspan;
     var imageBounds = new L.LatLngBounds(new L.LatLng(latmin,lngmin), new L.LatLng(latmax,lngmax));
     var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
-    parks[p].mapped = true;
+    parks[p].mapped = image;
     map.addLayer(image);
   }
 }
@@ -486,6 +487,15 @@ function activate_way(m, w){
   });
   if(w.building == "yes"){
     m.on('click', function(e){
+      if(promoted[w.wayid]){
+        var building = buildings[promoted[w.wayid].index];
+        var popupContent = 'Effect: ' + building.effect + '<br/>Color: ' + building.color;
+        var popup = new L.Popup();
+		popup.setLatLng(new L.LatLng( building.center[0], building.center[1] ));
+		popup.setContent(popupContent);
+		map.openPopup(popup);
+  	    return;
+      }
       // show the building sketch and info
       var latmin = 1000;
       var latmax = -1000;
@@ -528,6 +538,7 @@ function activate_way(m, w){
       }
       m.openPopup();
       writeBuilding(buildings.length-1, 'parkCanvas');
+      promoted[w.wayid] = {index: buildings.length-1, type:"building", effect: "3Droof", color: "#ff0000" };
     });
   }
 }
