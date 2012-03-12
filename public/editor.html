@@ -12,10 +12,11 @@
 	<script type="text/javascript">
 var buildings = [ ];
 var parks = [ ];
+var baseMapLayer;
     </script>
     
     <script type="text/javascript">
-var map, baseMapLayer, baseIcon, tree, miniIcon;
+var map, baseIcon, tree, miniIcon;
 var promoted = { };
 
 function init(){
@@ -152,7 +153,6 @@ function darken(hexcolor){
 
 function changeTiles(){
   var tiles = $('#mapTiler')[0].value;
-  console.log(buildings);
   map.removeLayer(baseMapLayer);
   if(tiles == "mapquest"){
     var tileURL = "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png";
