@@ -477,7 +477,8 @@ function ptInPoly(pt, polyCords){
 	return c;
 }
 
-function changeColor(wayid, hexcolor){
+function changeColor(wayid){
+	var hexcolor = document.getElementById("colorPick").value;
 	promoted[wayid].color = hexcolor;
 	buildings[promoted[wayid].index] = hexcolor;
 	map.removeLayer(buildings[promoted[wayid].index].mapped);
@@ -530,14 +531,17 @@ function activate_way(m, w){
     m.on('click', function(e){
       if(promoted[w.wayid]){
         var building = buildings[promoted[w.wayid].index];
-        var popupContent = 'Effect: ' + promoted[w.wayid].effect + '<br/>Color: <input id="colorPick" class="color" onchange="changeColor("' + w.wayid + '", this.value)" value="' + promoted[w.wayid].color + '"/>';
+        var popupContent = 'Effect: ' + promoted[w.wayid].effect + '<br/>Color: <input id="colorPick" class="color" value="' + promoted[w.wayid].color + '"/>';
         var popup = new L.Popup();
 		popup.setLatLng(new L.LatLng( building.center[0], building.center[1] ));
 		popup.setContent(popupContent);
 		map.openPopup(popup);
 		var myPicker = new jscolor.color(document.getElementById('colorPick'), {})
 		myPicker.fromString(promoted[w.wayid].color);
-  	    return;
+		myPicker.onchange = function(){
+			changeColor(w.wayid);
+		}
+		return;
       }
       // show the building sketch and info
       var latmin = 1000;
