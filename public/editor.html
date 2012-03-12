@@ -418,7 +418,7 @@ function writeBuilding(b, canvasid){
   	    if(!tooBigPanel){
           ctx.moveTo( newroofTip[0], newroofTip[1] );
           ctx.beginPath();
-          ctx.lineTo( parseInt(roofTip[0] - 8 * 0.7, parseInt(roofTip[1] - 35 * 0.7 );
+          ctx.lineTo( parseInt(roofTip[0] - 8 * 0.7), parseInt(roofTip[1] - 35 * 0.7 ) );
           ctx.lineTo( last_pt[0] - levels_offset_x, last_pt[1] - levels_offset );
           ctx.lineTo( parseInt(newroofTip[0] - 8 * 0.7), parseInt(newroofTip[1] - 35 * 0.7)  );
           ctx.closePath();
