@@ -43,6 +43,21 @@ function init(){
   });
   
   $("#colorPick").colorPicker();
+  $('#colorPick').on("change",
+	function(){
+	  if(activeWay){
+	    changeColor( activeWay )
+	  }
+	}
+  );
+  $("#roofPick").colorPicker();
+  $('#roofPick').on("change",
+	function(){
+	  if(activeWay){
+	    changeRoofColor( activeWay )
+	  }
+	}
+  );
   $('#promote-effect').on("change",
     function(){
       if(activeWay){
@@ -57,13 +72,6 @@ function init(){
         changeColor( activeWay );
       }
     }
-  );
-  $('#colorPick').on("change",
-	function(){
-	  if(activeWay){
-	    changeColor( activeWay )
-	  }
-	}
   );
 }
 
@@ -325,7 +333,7 @@ function writeBuilding(b, canvasid){
     }
     
     // set roof colors
-	ctx.fillStyle = "#ccc";
+	ctx.fillStyle = buildings[b].roofcolor;
     ctx.strokeStyle = "#000";
     ctx.strokeWidth = 2;
     
@@ -431,10 +439,10 @@ function writeBuilding(b, canvasid){
 
       var wallSlope = ( at_pt[1] - last_pt[1] ) / ( at_pt[0] - last_pt[0] );
       if(Math.abs( wallSlope ) > 1.3){
-         ctx.fillStyle = "#aaa";
+         ctx.fillStyle = darken(buildings[b].roofcolor);
       }
       else{
-		 ctx.fillStyle = "#ccc";
+		 ctx.fillStyle = buildings[b].roofcolor;
       }
 
 	  // draw triangles to form roof including last_pt
@@ -535,6 +543,12 @@ function ptInPoly(pt, polyCords){
 	return c;
 }
 
+function changeRoofColor(wayid){
+	var hexcolor = $("#roofPick")[0].value;
+	promoted[wayid].roofcolor = hexcolor;
+	buildings[promoted[wayid].index].roofcolor = hexcolor;
+	changeColor(wayid);
+}
 function changeColor(wayid){
 	var hexcolor = $("#colorPick")[0].value;
 	promoted[wayid].color = hexcolor;
@@ -631,12 +645,13 @@ function activate_way(m, w){
     	lngmin: lngmin,
     	lngmax: lngmax,
     	color: "#ff0000",
+    	roofcolor: "#cccccc",
     	mapped: false
       };
       buildings.push(b);
       m.openPopup();
       writeBuilding(buildings.length-1, 'parkCanvas');
-      promoted[w.wayid] = {index: buildings.length-1, type:"building", effect: "3Droof", color: "#ff0000" };
+      promoted[w.wayid] = {index: buildings.length-1, type:"building", effect: "3Droof", color: "#ff0000", roofcolor: "#cccccc" };
     });
   }
 }
@@ -759,6 +774,10 @@ function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\
 	  		<div>
 		  		<label for="colorPick">Color</label>
 	  			<input id="colorPick" type="text" value="#000000"/>
+	  		</div>
+	  		<div>
+		  		<label for="roofPick">Roof Color</label>
+	  			<input id="roofPick" type="text" value="#000000"/>
 	  		</div>
 	  	</form>
 	  </div>
