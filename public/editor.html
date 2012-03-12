@@ -16,7 +16,7 @@ var baseMapLayer;
     </script>
     
     <script type="text/javascript">
-var map, baseIcon, tree, miniIcon;
+var map, baseIcon, tree, miniIcon, activeWay;
 var promoted = { };
 
 function init(){
@@ -43,6 +43,28 @@ function init(){
   });
   
   $("#colorPick").colorPicker();
+  $('#promote-effect').on("change",
+    function(){
+      if(activeWay){
+        promoted[activeWay].effect = $('#promote-effect')[0].value;
+      }
+    }
+  );
+  $('#build-levels').on("change",
+    function(){
+      if(activeWay){
+        buildings[promoted[activeWay].index].sections[0].levels = parseInt( $('#build-levels')[0].value );
+        changeColor( activeWay );
+      }
+    }
+  );
+  $('#colorPick').on("change",
+	function(){
+	  if(activeWay){
+	    changeColor( activeWay )
+	  }
+	}
+  );
 }
 
 function prepBuildings(){
@@ -569,26 +591,12 @@ function activate_way(m, w){
     m.on('click', function(e){
       if(promoted[w.wayid]){
         var building = buildings[promoted[w.wayid].index];
+        activeWay = null;
         $('#promote-name')[0].innerHTML = w.name || w.designation || w.id;
         $('#promote-effect')[0].value = promoted[w.wayid].effect;
-        $('#promote-effect').on("change",
-        	function(){
-        		promoted[w.wayid].effect = $('#promote-effect')[0].value;
-        	}
-        );
         $('#build-levels')[0].value = buildings[promoted[w.wayid].index].sections[0].levels;
-        $('#build-levels').on("change",
-        	function(){
-        		buildings[promoted[w.wayid].index].sections[0].levels = parseInt( $('#build-levels')[0].value );
-        		changeColor( w.wayid );
-        	}
-        );
         $('#colorPick').value = promoted[w.wayid].color;
-		$('#colorPick').on("change",
-			function(){
-				changeColor( w.wayid )
-			}
-		);
+        activeWay = w.wayid;
 		return;
       }
       // show the building sketch and info
