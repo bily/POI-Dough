@@ -52,10 +52,10 @@ function prepBuildings(){
     var latmin = 1000;
     var lngmax = -1000;
     var lngmin = 1000;
-    var maxLevel = 0;
+    var maxlevel = 0;
     for(var s=0; s<buildings[b].sections.length; s++){
-      if(buildings[b].sections[s].levels > maxLevel){
-        maxLevel = buildings[b].sections[s].levels;
+      if(buildings[b].sections[s].levels > maxlevel){
+        maxlevel = buildings[b].sections[s].levels;
       }
       for(var v=0; v<buildings[b].sections[s].vertices.length; v++){
         var pt = buildings[b].sections[s].vertices[v];
@@ -80,7 +80,7 @@ function prepBuildings(){
     buildings[b].latmax = latmax;
     buildings[b].lngmin = lngmin;
     buildings[b].lngmax = lngmax;
-    buildings[b].maxLevel = maxLevel;
+    buildings[b].maxlevel = maxlevel;
     buildings[b].mapped = false;
 
     // place a marker at the center of the footprint
@@ -197,10 +197,10 @@ function writeBuilding(b, canvasid){
   var lngmax = buildings[b].lngmax;
   var latspan = latmax - latmin;
   var lngspan = lngmax - lngmin;
-  var maxLevel = buildings[b].maxlevel;
+  var maxlevel = buildings[b].maxlevel;
 
-  var lngrestrict = ((canvas.width / 2) - maxLevel * 8) / (lngmax - lngmin) * 2;
-  var latrestrict = ((canvas.height / 2) - maxLevel * 35) / (latmax - latmin) * 2;
+  var lngrestrict = ((canvas.width / 2) - maxlevel * 8) / (lngmax - lngmin) * 2;
+  var latrestrict = ((canvas.height / 2) - maxlevel * 35) / (latmax - latmin) * 2;
 
   if(latrestrict > lngrestrict){
   	canvas.height = parseInt( latrestrict / lngrestrict * 300 );
