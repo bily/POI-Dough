@@ -15,43 +15,17 @@ var parks = [ ];
     </script>
     
     <script type="text/javascript">
-var map, baseMap, baseIcon, tree, miniIcon;
+var map, baseMapLayer, baseIcon, tree, miniIcon;
 var promoted = { };
 
-function changeTiles(){
-  var tiles = $('#mapTiler')[0].value;
-  console.log(baseMap);
-  map.removeLayer(baseMap);
-  if(tiles == "mapquest"){
-    var tileURL = "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png";
-    var attribution = "Map data &copy; 2012 OpenStreetMap contributors, Tiles by MapQuest";
-    baseMap = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
-  }
-  else if(tiles == "mapnik"){
-    var tileURL = 'http://tile.openstreetmap.org/{z}/{x}/{y}.png';
-    var attribution = 'Map data &copy; 2012 OpenStreetMap contributors',
-    baseMap = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
-  }
-  else if(tiles == "transit"){
-    var tileURL = "http://{s}.tile2.opencyclemap.org/transport/{z}/{x}/{y}.png";
-    var attribution = 'Map data &copy; 2012 OpenStreetMap contributors, Tiles by Andy Allan',
-    baseMap = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
-  }
-  else if(tiles == "terrain"){
-    var tileURL = "http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg";
-    var attribution = "Map data &copy; 2012 OpenStreetMap contributors, Tiles by Mike Migurski of Stamen Design";
-    baseMap = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
-  }
-  map.addLayer(baseMap);
-}
 function init(){
   var tileURL = "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png";
   var attribution = "Map data &copy; 2012 OpenStreetMap contributors, Tiles by MapQuest";
-  baseMap = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
+  baseMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
 
   map = new L.Map('map');
   cityll = new L.LatLng(32.8406946, -83.6324022);
-  map.setView(cityll, 17).addLayer(baseMap);
+  map.setView(cityll, 17).addLayer(baseMapLayer);
 
   miniIcon = L.Icon.extend({
     iconSize: new L.Point(20, 36),
@@ -174,6 +148,33 @@ function darken(hexcolor){
 	}
 	hexcolor = "#" + rgb.join("");
 	return hexcolor;
+}
+
+function changeTiles(){
+  var tiles = $('#mapTiler')[0].value;
+  console.log(baseMapLayer);
+  map.removeLayer(baseMapLayer);
+  if(tiles == "mapquest"){
+    var tileURL = "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png";
+    var attribution = "Map data &copy; 2012 OpenStreetMap contributors, Tiles by MapQuest";
+    baseMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
+  }
+  else if(tiles == "mapnik"){
+    var tileURL = 'http://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    var attribution = 'Map data &copy; 2012 OpenStreetMap contributors',
+    baseMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
+  }
+  else if(tiles == "transit"){
+    var tileURL = "http://{s}.tile2.opencyclemap.org/transport/{z}/{x}/{y}.png";
+    var attribution = 'Map data &copy; 2012 OpenStreetMap contributors, Tiles by Andy Allan',
+    baseMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
+  }
+  else if(tiles == "terrain"){
+    var tileURL = "http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg";
+    var attribution = "Map data &copy; 2012 OpenStreetMap contributors, Tiles by Mike Migurski of Stamen Design";
+    baseMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
+  }
+  map.addLayer(baseMapLayer);
 }
 
 function writeBuilding(b, canvasid){
