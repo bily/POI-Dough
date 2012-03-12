@@ -658,9 +658,6 @@ function tableOfData(dict){
 }
 
 function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\\?&]"+nm+"=([^&#]*)";var rx=new RegExp(rxS);var rs=rx.exec(window.location.href);if(!rs){return null;}else{return rs[1];}}
-function $(id){
-  return document.getElementById(id);
-}
     </script>
     <style type="text/css">
 .leaflet-marker-icon{
