@@ -536,7 +536,7 @@ function activate_way(m, w){
 		popup.setLatLng(new L.LatLng( building.center[0], building.center[1] ));
 		popup.setContent(popupContent);
 		map.openPopup(popup);
-		$('#colorPick').colorPicker().onchange(
+		$('#colorPick').colorPicker().on("change",
 			function(){
 				changeColor( w.wayid )
 			}
