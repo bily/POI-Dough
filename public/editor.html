@@ -531,7 +531,7 @@ function activate_way(m, w){
     m.on('click', function(e){
       if(promoted[w.wayid]){
         var building = buildings[promoted[w.wayid].index];
-        var popupContent = 'Effect: ' + promoted[w.wayid].effect + '<br/><label for="colorPick">Color</label><input id="colorPick" type="text" value="' + promoted[w.wayid].color + '"/>';
+        var popupContent = 'Effect: ' + promoted[w.wayid].effect + '<br/><label for="colorPick">Color</label><div><input id="colorPick" type="text" value="' + promoted[w.wayid].color + '"/></div>';
         var popup = new L.Popup();
 		popup.setLatLng(new L.LatLng( building.center[0], building.center[1] ));
 		popup.setContent(popupContent);
