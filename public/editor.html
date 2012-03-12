@@ -442,7 +442,7 @@ function writeBuilding(b, canvasid){
   }
   
   if(!buildings[b].mapped){
-    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/8,lngmin-lngspan/8), new L.LatLng(latmax + latspan/8 + ( latspan / 300 * maxlevels * 35),lngmax+lngspan/8));
+    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/8,lngmin-lngspan/8), new L.LatLng(latmax + latspan/8 + ( latspan / 300 * maxlevel * 35),lngmax+lngspan/8));
     var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
     buildings[b].mapped = image;
     map.addLayer(image);
