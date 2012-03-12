@@ -192,8 +192,7 @@ function writeBuilding(b, canvasid){
   var lngmax = buildings[b].lngmax;
   var latspan = latmax - latmin;
   var lngspan = lngmax - lngmin;
-  var latspan = Math.max(latspan, lngspan);
-  var lngspan = latspan;
+
   if(latspan > lngspan){
   	canvas.height = parseInt( latspan / lngspan * 300 );
   	canvas.width = 300;
@@ -566,7 +565,12 @@ function activate_way(m, w){
       if(promoted[w.wayid]){
         var building = buildings[promoted[w.wayid].index];
         $('#promote-name')[0].innerHTML = w.name || w.designation || w.id;
-        $('#promote-effect')[0].innerHTML = promoted[w.wayid].effect;
+        $('#promote-effect')[0].value = promoted[w.wayid].effect;
+        $('#promote-effect').on("change",
+        	function(){
+        		promoted[w.wayid].effect = $('#promote-effect')[0].value;
+        	}
+        );
         $('#build-levels')[0].value = buildings[promoted[w.wayid].index].sections[0].levels;
         $('#build-levels').on("change",
         	function(){
@@ -737,7 +741,12 @@ function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\
 	  		<label>Name</label>
 	  		<span class="help-inline" id="promote-name"></span>
 	  		<label>Effect</label>
-	  		<span class="help-inline" id="promote-effect"></span>
+	  		<select id="promote-effect">
+	  			<option value="3Droof" selected="selected">3D Roof</option>
+	  			<option value="3Dblock">3D Block</option>
+	  			<option value="park">Park</option>
+	  			<option value="corn">Corn</option>
+	  		</select>
 	  		<label>Levels</label>
 	  		<input id="build-levels" type="text" value="1"/>
 	  		<div>
