@@ -153,7 +153,9 @@ function darken(hexcolor){
 
 function changeTiles(){
   var tiles = $('#mapTiler')[0].value;
-  map.removeLayer(baseMapLayer);
+  if(baseMapLayer){
+	map.removeLayer(baseMapLayer);
+  }
   if(tiles == "mapquest"){
     var tileURL = "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png";
     var attribution = "Map data &copy; 2012 OpenStreetMap contributors, Tiles by MapQuest";
