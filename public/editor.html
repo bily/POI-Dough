@@ -489,7 +489,7 @@ function activate_way(m, w){
     m.on('click', function(e){
       if(promoted[w.wayid]){
         var building = buildings[promoted[w.wayid].index];
-        var popupContent = 'Effect: ' + building.effect + '<br/>Color: ' + building.color;
+        var popupContent = 'Effect: ' + promoted[w.wayid].effect + '<br/>Color: ' + promoted[w.wayid].color;
         var popup = new L.Popup();
 		popup.setLatLng(new L.LatLng( building.center[0], building.center[1] ));
 		popup.setContent(popupContent);
@@ -585,7 +585,7 @@ function processOSM(data){
       // add this way
 	  var marker = new L.Marker( new L.LatLng( data[i].line[0][0], data[i].line[0][1] ), { icon: new miniIcon() } );
       map.addLayer(marker);
-      marker.bindPopup( '<h3>' + (data[i].name || data[i].id) + '</h3>' + tableOfData(data[i]))
+      marker.bindPopup( '<h3>' + (data[i].name || data[i].designation || data[i].wayid) + '</h3>' + tableOfData(data[i]))
       activate_way(marker, data[i]);
     }
     else{
