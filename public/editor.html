@@ -20,6 +20,7 @@ var promoted = { };
 
 function changeTiles(){
   var tiles = $('#mapTiler')[0].value;
+  console.log(baseMap);
   map.removeLayer(baseMap);
   if(tiles == "mapquest"){
     var tileURL = "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png";
