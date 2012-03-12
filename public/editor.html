@@ -634,12 +634,7 @@ function activate_way(m, w){
     	mapped: false,
     	draft: true
       };
-      if(buildings.length == 0 || !buildings[buildings.length-1].draft){
-    	buildings.push(b);
-      }
-      else{
-    	buildings[buildings.length-1] = b;
-      }
+      buildings.push(b);
       m.openPopup();
       writeBuilding(buildings.length-1, 'parkCanvas');
       promoted[w.wayid] = {index: buildings.length-1, type:"building", effect: "3Droof", color: "#ff0000" };
