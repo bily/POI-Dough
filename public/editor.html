@@ -192,6 +192,7 @@ function writeBuilding(b, canvasid){
   var lngmax = buildings[b].lngmax;
   var latspan = latmax - latmin;
   var lngspan = lngmax - lngmin;
+  var levelmax = 0;
 
   if(latspan > lngspan){
   	canvas.height = parseInt( latspan / lngspan * 300 );
@@ -207,6 +208,8 @@ function writeBuilding(b, canvasid){
     // fetch the canvas context and set color styles
     pix_x_offset = canvas.width * 1 / 2;
     pix_y_offset = canvas.height * 1 / 2;
+    levelmax = Math.max(levelmax, buildings[b].sections[s].levels);
+    
     var ctx = canvas.getContext('2d');
 
     // set scale in pixels per degree
@@ -426,7 +429,7 @@ function writeBuilding(b, canvasid){
   }
   
   if(!buildings[b].mapped){
-    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/8,lngmin-lngspan/8), new L.LatLng(latmax+latspan/8,lngmax+lngspan/8));
+    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/4*(levelmax-1)-latspan/8,lngmin-lngspan/4*(levelmax-1)-lngspan/8), new L.LatLng(latmax+latspan/4*(levelmax-1)+latspan/8,lngmax+lngspan/4*(levelmax-1)+lngspan/8));
     var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
     buildings[b].mapped = image;
     map.addLayer(image);
