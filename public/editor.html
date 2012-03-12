@@ -480,7 +480,7 @@ function ptInPoly(pt, polyCords){
 function changeColor(wayid){
 	var hexcolor = document.getElementById("colorPick").value;
 	promoted[wayid].color = hexcolor;
-	buildings[promoted[wayid].index] = hexcolor;
+	buildings[promoted[wayid].index].color = hexcolor;
 	map.removeLayer(buildings[promoted[wayid].index].mapped);
 	buildings[promoted[wayid].index].mapped = false;
 	writeBuilding(promoted[wayid].index, 'parkCanvas');
