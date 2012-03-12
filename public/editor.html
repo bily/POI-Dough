@@ -451,7 +451,7 @@ function writeBuilding(b, canvasid){
   }
   
   if(!buildings[b].mapped){
-    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/4*(levelmax-1)-latspan/8,lngmin-lngspan/4*(levelmax-1)-lngspan/8), new L.LatLng(latmax+latspan/4*(levelmax-1)+latspan/8,lngmax+lngspan/4*(levelmax-1)+lngspan/8));
+    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-Math.pow(latspan/4,(levelmax-1))-latspan/8,lngmin-Math.pow(lngspan/4,(levelmax-1))-lngspan/8), new L.LatLng(latmax+Math.pow(latspan/4,(levelmax-1))+latspan/8,lngmax+Math.pow(lngspan/4,(levelmax-1))+lngspan/8));
     var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
     buildings[b].mapped = image;
     map.addLayer(image);
@@ -631,8 +631,7 @@ function activate_way(m, w){
     	lngmin: lngmin,
     	lngmax: lngmax,
     	color: "#ff0000",
-    	mapped: false,
-    	draft: true
+    	mapped: false
       };
       buildings.push(b);
       m.openPopup();
