@@ -532,11 +532,9 @@ function activate_way(m, w){
     m.on('click', function(e){
       if(promoted[w.wayid]){
         var building = buildings[promoted[w.wayid].index];
-        var popupContent = 'Effect: ' + promoted[w.wayid].effect + '<br/><div><label for="colorPick">Color</label><input id="colorPick" type="text" value="' + promoted[w.wayid].color + '"/></div>';
-        var popup = new L.Popup();
-		popup.setLatLng(new L.LatLng( building.center[0], building.center[1] ));
-		popup.setContent(popupContent);
-		map.openPopup(popup);
+        $('#promote-name')[0].innerHTML = w.name || w.designation || w.id;
+        $('#promote-effect')[0].innerHTML = w.effect;
+        $('#colorPick').value = promoted[w.wayid].color;
 		$('#colorPick').colorPicker().on("change",
 			function(){
 				changeColor( w.wayid )
@@ -684,6 +682,17 @@ function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\
 	  	<button id="importButton" class="btn btn-primary" onclick="importOSM()">
 	  	  Import OSM Data
 	  	</button>
+	  	
+	  	<form class="well">
+	  		<label>Name</label>
+	  		<span class="help-inline" id="promote_name"></span>
+	  		<label>Effect</label>
+	  		<span class="help-inline" id="promote_effect"></span>
+	  		<div>
+		  		<label for="colorPick">Color</label>
+	  			<input id="colorPick" type="text" value="#000000"/>
+	  		</div>
+	  	</form>
 	  </div>
 
       <div class="clear"></div>
