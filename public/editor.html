@@ -183,14 +183,25 @@ function changeTiles(){
 
 function writeBuilding(b, canvasid){
   var canvas = $('#' + canvasid)[0];
-  canvas.width = canvas.width; // clear drawing space
 
-  ctrlat = buildings[b].center[0];
-  ctrlng = buildings[b].center[1];
-  latmin = buildings[b].latmin;
-  latmax = buildings[b].latmax;
-  lngmin = buildings[b].lngmin;
-  lngmax = buildings[b].lngmax;
+  var ctrlat = buildings[b].center[0];
+  var ctrlng = buildings[b].center[1];
+  var latmin = buildings[b].latmin;
+  var latmax = buildings[b].latmax;
+  var lngmin = buildings[b].lngmin;
+  var lngmax = buildings[b].lngmax;
+  var latspan = latmax - latmin;
+  var lngspan = lngmax - lngmin;
+  var latspan = Math.max(latspan, lngspan);
+  var lngspan = latspan;
+  if(latspan > lngspan){
+  	canvas.height = parseInt( latspan / lngspan * 300 );
+  	canvas.width = 300;
+  }
+  else{
+    canvas.height = 300;
+  	canvas.width = parseInt( lngspan / latspan * 300 );
+  }
 
   for(var s=0; s<buildings[b].sections.length; s++){
     // draw the footprint onto the canvas
@@ -416,10 +427,6 @@ function writeBuilding(b, canvasid){
   }
   
   if(!buildings[b].mapped){
-    var latspan = latmax - latmin;
-    var lngspan = lngmax - lngmin;
-    var latspan = Math.max(latspan, lngspan);
-    var lngspan = latspan;
     var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/8,lngmin-lngspan/8), new L.LatLng(latmax+latspan/8,lngmax+lngspan/8));
     var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
     buildings[b].mapped = image;
@@ -470,16 +477,11 @@ function writePark(p, canvasid){
 	at_pt = toPixel( at_pt, ctrlat, ctrlng, scale );
 	poly[i] = at_pt;  // [x, y]
   }
-  imgData = ctx.getImageData(0, 0, 300, 300);
-  for(var x=0; x<300; x++){
-	for(var y=0; y<300; y++){
+  imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  for(var x=0; x<canvas.width; x++){
+	for(var y=0; y<canvas.height; y++){
 	  if(!ptInPoly([x,y], poly)){
-	    //for(var xplus=0;xplus<3;xplus++){
-	      //for(var yplus=0;yplus<3;yplus++){
-		    //imgData.data[(y+yplus)*4*300+(x+xplus)*4+3] = 0;
-		    imgData.data[y*4*300+x*4+3] = 0;
-	      //}
-	    //}
+		imgData.data[y*4*canvas.width+x*4+3] = 0;
 	  }
 	}
   }
