@@ -623,6 +623,7 @@ function activate_way(m, w){
         $('#promote-effect')[0].value = promoted[w.wayid].effect;
         $('#build-levels')[0].value = buildings[promoted[w.wayid].index].sections[0].levels;
         $('#colorPick').value = promoted[w.wayid].color;
+        $('#roofPick').value = promoted[w.wayid].roofcolor;
         activeWay = w.wayid;
 		return;
       }
@@ -671,6 +672,7 @@ function activate_way(m, w){
         $('#promote-effect')[0].value = promoted[w.wayid].effect;
         $('#build-levels')[0].value = buildings[promoted[w.wayid].index].sections[0].levels;
         $('#colorPick').value = promoted[w.wayid].color;
+        $('#roofPick').value = promoted[w.wayid].roofcolor;
       activeWay = w.wayid;
     });
   }
