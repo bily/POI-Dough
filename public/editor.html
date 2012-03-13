@@ -87,6 +87,15 @@ function init(){
       }
     }
   );
+  $('#iconPick').on("change",
+    function(){
+      if(activeWay){
+        parks[promoted[activeWay].index].texture = $('#iconPick')[0].value;
+        changeTexture( activeWay );
+        writePark(promoted[activeWay].index, 'parkCanvas');
+      }
+    }
+  );
   tree = new Image();
   tree.src = "/treeblot.png";
   corn = new Image();
@@ -530,13 +539,13 @@ function writePark(p, canvasid){
     // set offset to [ center_pixel_x, center_pixel_y ] from upper left corner
     var offset = [ (latmax - ctrlat) * scale, (ctrlng - lngmin) * scale ];
   var icon = tree;
-  if($('#iconPick').value == "corn"){
+  if($('#iconPick')[0].value == "corn"){
   	icon = corn;
   }
-  else if($('#iconPick').value == "coffee"){
+  else if($('#iconPick')[0].value == "coffee"){
   	icon = coffee;  
   }
-  else if($('#iconPick').value == "watermelon"){
+  else if($('#iconPick')[0].value == "watermelon"){
   	icon = watermelon;
   }
   for(var x=0; x<canvas.width; x+=25){
@@ -650,7 +659,8 @@ function activate_way(m, w){
       }
       p = {
       	vertices: w.line.slice(0),
-      	effect: "park"
+      	effect: "park",
+      	index: parks.length
       };
       parks.push(p);
       prepParks();
