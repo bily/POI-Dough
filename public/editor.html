@@ -91,7 +91,6 @@ function init(){
     function(){
       if(activeWay){
         parks[promoted[activeWay].index].texture = $('#iconPick')[0].value;
-        changeTexture( activeWay );
         writePark(promoted[activeWay].index, 'parkCanvas');
       }
     }
@@ -861,19 +860,15 @@ function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\
 	  		<label>Textures</label>
 	  		<select id="iconPick">
 	  			<option value="tree">
-	  				<img src="/tree.png"/>
 	  				Tree
 	  			</option>
 	  			<option value="corn">
-	  				<img src="/corn.png"/>
 	  				Corn
 	  			</option>
 	  			<option value="coffee">
-	  				<img src="/coffee.png"/>
 	  				Coffee
 	  			</option>
 	  			<option value="watermelon">
-	  				<img src="/watermelong.png"/>
 	  				Watermelon
 	  			</option>
 	  		</select>
