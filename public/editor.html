@@ -62,6 +62,18 @@ function init(){
     function(){
       if(activeWay){
         promoted[activeWay].effect = $('#promote-effect')[0].value;
+        if(promoted[activeWay].effect.indexOf("3D") > -1){
+          $('#build-levels')[0].disabled = false;
+          $('#colorPick').parent().show();
+          $('#roofPick').parent().show();
+          $('#iconPick').parent().hide();
+        }
+        else{
+          $('#build-levels')[0].disabled = true;
+          $('#colorPick').parent().hide();
+          $('#roofPick').parent().hide();
+          $('#iconPick').parent().show();
+        }
         changeColor( activeWay );
       }
     }
@@ -74,6 +86,8 @@ function init(){
       }
     }
   );
+  tree = new Image();
+  tree.src = "/treeblot.png";
 }
 
 function prepBuildings(){
@@ -593,13 +607,6 @@ function activate_on_hover(m, b){
     bopon.push(m._icon);
     bop(m._icon, 0);
   });
-  /*if(b != null){
-    m.on('click', function(e){
-      // show the building sketch and info
-      m.openPopup();
-      writeBuilding(b, 'popupCanvas');
-    });
-  }*/
 }
 var activePoly;
 function activate_way(m, w){
@@ -614,8 +621,33 @@ function activate_way(m, w){
 	activePoly = new L.Polygon( wll, { color: "#f00", fillOpacity: 0.3, opacity: 0.65 } );
 	map.addLayer(activePoly);
   });
-  if(w.building == "yes"){
+  if(w.leisure == "park"){
+  	m.on('click', function(e){
+      $('#build-levels')[0].disabled = true;
+      $('#colorPick').parent().hide();
+      $('#roofPick').parent().hide();  	
+      $('#iconPick').parent().show();
+      if(promoted[w.wayid]){
+        $('#iconPick').value = promoted[w.wayid].icon;
+        activeWay = w.wayid;
+        return;
+      }
+      p = {
+      	vertices: w.line.slice(0),
+      	effect: "park"
+      };
+      parks.push(p);
+      prepParks();
+      writePark(parks.length-1, 'parkCanvas');
+  	});
+  }
+  else if(w.building == "yes"){
     m.on('click', function(e){
+      $('#build-levels')[0].disabled = false;
+      $('#colorPick').parent().show();
+      $('#roofPick').parent().show();
+      $('#iconPick').parent().hide();
+      
       if(promoted[w.wayid]){
         var building = buildings[promoted[w.wayid].index];
         activeWay = null;
