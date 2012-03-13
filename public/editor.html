@@ -296,11 +296,6 @@ function writeBuilding(b, canvasid){
 	  // set wall colors
       ctx.strokeStyle = "#000";
       ctx.strokeWidth = 1;
-      
-      var wallSlope = ( at_pt[1] - last_pt[1] ) / ( at_pt[0] - last_pt[0] );
-      if(Math.abs( wallSlope ) > 1){
-         ctx.fillStyle = "#a00";
-      }
 
 	  // draw previous vertex to current vertex
       ctx.moveTo( last_pt[0], last_pt[1] );
@@ -440,7 +435,7 @@ function writeBuilding(b, canvasid){
 	    //roofTip = newroofTip;
 
         var wallSlope = ( at_pt[1] - last_pt[1] ) / ( at_pt[0] - last_pt[0] );
-        if(Math.abs( wallSlope ) > 1.3){
+        if(Math.abs( wallSlope ) > 1){
           ctx.fillStyle = darken(buildings[b].roofcolor);
         }
         else{
@@ -624,7 +619,7 @@ function activate_way(m, w){
       if(promoted[w.wayid]){
         var building = buildings[promoted[w.wayid].index];
         activeWay = null;
-        $('#promote-name')[0].innerHTML = w.name || w.designation || w.id;
+        $('#promote-name')[0].innerHTML = w.name || w.designation || w.wayid;
         $('#promote-effect')[0].value = promoted[w.wayid].effect;
         $('#build-levels')[0].value = buildings[promoted[w.wayid].index].sections[0].levels;
         $('#colorPick').value = promoted[w.wayid].color;
@@ -671,6 +666,12 @@ function activate_way(m, w){
       m.openPopup();
       writeBuilding(buildings.length-1, 'parkCanvas');
       promoted[w.wayid] = {index: buildings.length-1, type:"building", effect: "3Droof", color: "#ff0000", roofcolor: "#cccccc" };
+      activeWay = null;
+        $('#promote-name')[0].innerHTML = w.name || w.designation || w.wayid;
+        $('#promote-effect')[0].value = promoted[w.wayid].effect;
+        $('#build-levels')[0].value = buildings[promoted[w.wayid].index].sections[0].levels;
+        $('#colorPick').value = promoted[w.wayid].color;
+      activeWay = w.wayid;
     });
   }
 }
