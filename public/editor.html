@@ -664,7 +664,8 @@ function activate_way(m, w){
       p = {
       	vertices: w.line.slice(0),
       	effect: "park",
-      	index: parks.length
+      	index: parks.length,
+      	texture: "watermelon"
       };
       parks.push(p);
       promoted[w.wayid] = p;
