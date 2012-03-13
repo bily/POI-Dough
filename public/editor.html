@@ -540,13 +540,13 @@ function writePark(p, canvasid){
     // set offset to [ center_pixel_x, center_pixel_y ] from upper left corner
     var offset = [ (latmax - ctrlat) * scale, (ctrlng - lngmin) * scale ];
   var icon = tree;
-  if($('#iconPick')[0].value == "corn"){
+  if(parks[p].texture == "corn"){
   	icon = corn;
   }
-  else if($('#iconPick')[0].value == "coffee"){
+  else if(parks[p].texture == "coffee"){
   	icon = coffee;  
   }
-  else if($('#iconPick')[0].value == "watermelon"){
+  else if(parks[p].texture == "watermelon"){
   	icon = watermelon;
   }
   for(var x=0; x<canvas.width; x+=25){
