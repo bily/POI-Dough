@@ -655,7 +655,7 @@ function activate_way(m, w){
       $('#colorPick').parent().hide();
       $('#roofPick').parent().hide();  	
       $('#iconPick').show();
-      var p;
+      var p, pdex;
       if(!promoted[w.wayid]){
    //     $('#iconPick').value = promoted[w.wayid].icon;
 	      p = {
@@ -665,6 +665,7 @@ function activate_way(m, w){
 	      	texture: "watermelon"
 	      };
 	      parks.push(p);
+	      pdex = parks.length - 1;
       }
       else{
 	      parks[ promoted[w.wayid].index ] = {
@@ -673,11 +674,12 @@ function activate_way(m, w){
 	      	index: parks.length,
 	      	texture: $('#iconPick').value
 	      };
+	      pdex = promoted[w.wayid].index;
       }
       activeWay = w.wayid;
       promoted[activeWay] = p;
       prepParks();
-      writePark(parks.length-1, 'parkCanvas');
+      writePark(pdex, 'parkCanvas');
   	});
   }
   else if(w.building == "yes"){
