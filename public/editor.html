@@ -91,6 +91,8 @@ function init(){
     function(){
       if(activeWay){
         parks[promoted[activeWay].index].texture = $('#iconPick')[0].value;
+	    map.removeLayer(parks[promoted[activeWay].index].mapped);
+    	parks[promoted[activeWay].index].mapped = false;
         writePark(promoted[activeWay].index, 'parkCanvas');
       }
     }
