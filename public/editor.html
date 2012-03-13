@@ -17,6 +17,7 @@ var baseMapLayer;
     
     <script type="text/javascript">
 var map, baseIcon, tree, miniIcon, activeWay;
+var corn, watermelon, coffee;
 var promoted = { };
 
 function init(){
@@ -66,13 +67,13 @@ function init(){
           $('#build-levels')[0].disabled = false;
           $('#colorPick').parent().show();
           $('#roofPick').parent().show();
-          $('#iconPick').parent().hide();
+          $('#iconPick').hide();
         }
         else{
           $('#build-levels')[0].disabled = true;
           $('#colorPick').parent().hide();
           $('#roofPick').parent().hide();
-          $('#iconPick').parent().show();
+          $('#iconPick').show();
         }
         changeColor( activeWay );
       }
@@ -88,6 +89,12 @@ function init(){
   );
   tree = new Image();
   tree.src = "/treeblot.png";
+  corn = new Image();
+  corn.src = "/corn.png";
+  coffee = new Image();
+  coffee.src = "/coffee.png";
+  watermelon = new Image();
+  watermelon.src = "/watermelon.png";
 }
 
 function prepBuildings(){
@@ -523,6 +530,15 @@ function writePark(p, canvasid){
     // set offset to [ center_pixel_x, center_pixel_y ] from upper left corner
     var offset = [ (latmax - ctrlat) * scale, (ctrlng - lngmin) * scale ];
   var icon = tree;
+  if($('#iconPick').value == "corn"){
+  	icon = corn;
+  }
+  else if($('#iconPick').value == "coffee"){
+  	icon = coffee;  
+  }
+  else if($('#iconPick').value == "watermelon"){
+  	icon = watermelon;
+  }
   for(var x=0; x<canvas.width; x+=25){
 	for(var y=0; y<canvas.height; y+=25){
 	    ctx.drawImage(icon, x, y, 25, 25);
@@ -626,7 +642,7 @@ function activate_way(m, w){
       $('#build-levels')[0].disabled = true;
       $('#colorPick').parent().hide();
       $('#roofPick').parent().hide();  	
-      $('#iconPick').parent().show();
+      $('#iconPick').show();
       if(promoted[w.wayid]){
         $('#iconPick').value = promoted[w.wayid].icon;
         activeWay = w.wayid;
@@ -646,7 +662,7 @@ function activate_way(m, w){
       $('#build-levels')[0].disabled = false;
       $('#colorPick').parent().show();
       $('#roofPick').parent().show();
-      $('#iconPick').parent().hide();
+      $('#iconPick').hide();
       
       if(promoted[w.wayid]){
         var building = buildings[promoted[w.wayid].index];
@@ -821,7 +837,6 @@ function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\
 	  			<option value="3Droof" selected="selected">3D Roof</option>
 	  			<option value="3Dblock">3D Block</option>
 	  			<option value="park">Park</option>
-	  			<option value="corn">Corn</option>
 	  		</select>
 	  		<label>Levels</label>
 	  		<input id="build-levels" type="text" value="1"/>
@@ -833,6 +848,25 @@ function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\
 		  		<label for="roofPick">Roof Color</label>
 	  			<input id="roofPick" type="text" value="#000000"/>
 	  		</div>
+	  		<label>Textures</label>
+	  		<select id="iconPick">
+	  			<option value="tree">
+	  				<img src="/tree.png"/>
+	  				Tree
+	  			</option>
+	  			<option value="corn">
+	  				<img src="/corn.png"/>
+	  				Corn
+	  			</option>
+	  			<option value="coffee">
+	  				<img src="/coffee.png"/>
+	  				Coffee
+	  			</option>
+	  			<option value="watermelon">
+	  				<img src="/watermelong.png"/>
+	  				Watermelon
+	  			</option>
+	  		</select>
 	  	</form>
 	  </div>
 
