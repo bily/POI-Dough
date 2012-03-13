@@ -511,6 +511,8 @@ function writeBuilding(b, canvasid){
 
 function writePark(p, canvasid){
   var canvas = $('#' + canvasid)[0];
+  canvas.width = 300;
+  canvas.height = 300;
   var ctx = canvas.getContext('2d');
 
   var ctrlat = parks[p].center[0];
