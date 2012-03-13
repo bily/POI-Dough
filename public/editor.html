@@ -665,6 +665,7 @@ function activate_way(m, w){
       	index: parks.length
       };
       parks.push(p);
+      promoted[w.wayid] = p;
       prepParks();
       writePark(parks.length-1, 'parkCanvas');
   	});
