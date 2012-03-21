@@ -636,20 +636,8 @@ function activate_on_hover(m, b){
     bop(m._icon, 0);
   });
 }
-var activePoly;
 function activate_way(m, w){
-  m.on('mouseover', function(e){
-	if(activePoly){
-		map.removeLayer(activePoly);
-	}
-	var wll = w.line.slice(0);
-	for(var i=0;i<wll.length;i++){
-		wll[i] = new L.LatLng(wll[i][0], wll[i][1]);
-	}
-	activePoly = new L.Polygon( wll, { color: "#f00", fillOpacity: 0.3, opacity: 0.65 } );
-	map.addLayer(activePoly);
-  });
-  if(w.leisure == "park"){
+  /*if(w.leisure == "park"){
   	m.on('click', function(e){
       $('#build-levels')[0].disabled = true;
       $('#colorPick').parent().hide();
@@ -748,7 +736,7 @@ function activate_way(m, w){
         $('#roofPick').value = promoted[w.wayid].roofcolor;
       activeWay = w.wayid;
     });
-  }
+  }*/
 }
 var bopon = [ ];
 function bop(icon, frame){
@@ -791,17 +779,23 @@ function processOSM(data){
       	continue;
       }
       // add this way
-	  var marker = new L.Marker( new L.LatLng( data[i].line[0][0], data[i].line[0][1] ), { icon: new miniIcon() } );
-      map.addLayer(marker);
-      marker.bindPopup( '<h3>' + (data[i].name || data[i].designation || data[i].wayid) + '</h3>' + tableOfData(data[i]))
-      activate_way(marker, data[i]);
+      var wll = w.line.slice(0);
+      for(var i=0;i<wll.length;i++){
+        wll[i] = new L.LatLng(wll[i][0], wll[i][1]);
+      }
+      var activePoly = new L.Polygon( wll, { color: "#ccc", fillOpacity: 0.3, opacity: 0.65 } );
+      activePoly.bindPopup( '<h3>' + (data[i].name || data[i].designation || data[i].wayid) + '</h3>' + tableOfData(data[i]));
+      activePoly.on("mouseover", function(e){
+        activePoly.setStyle( { color: "#f00" } );
+      });
+      map.addLayer(activePoly);
     }
     else{
       // show this node as a marker
-      /*var marker = new L.Marker( new L.LatLng( data[i].lat, data[i].lon ), { icon: new miniIcon() } );
+      var marker = new L.Marker( new L.LatLng( data[i].lat, data[i].lon ), { icon: new miniIcon() } );
       map.addLayer(marker);
       marker.bindPopup( '<h3>' + (data[i].name || data[i].id) + '</h3>' + tableOfData(data[i]))
-      activate_on_hover(marker, null);*/
+      activate_on_hover(marker, null);
     }
   }
 }
