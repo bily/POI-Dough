@@ -438,7 +438,9 @@ function writeBuilding(b){
   var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
   map.addLayer(image);
   promoted[buildings[b].id].drawnLayer = image;
-  menu_on_click(image, promoted[ buildings[b].id ].osmdata);
+  console.log(image);
+  image.bindPopup("hello building popup world");
+  //menu_on_click(image, promoted[ buildings[b].id ].osmdata);
 }
 
 function writePark(p){
@@ -623,7 +625,7 @@ function menu_on_click(p, shard){
     activeWay = shard.wayid;
     menuPopup.setLatLng( p.getBounds().getCenter() );
     var header = '<h3>' + (shard.name || shard.designation || shard.wayid) + '</h3>';
-    var effectSelect = '<select onchange="setEffect(activeWay,this.value)"><option value="none">None</option><option value="3Droof">3D Roof</option><option value="3Dblock">3D Block</option><option value="2Dpark">Park</option><option value="2Dcoffee">Coffee</option><option value="2Dpumpkin">Pumpkin</option><option value="2Dcorn">Corn</option><option value="2Dwatermelon">Watermelon</option></select>';
+    var effectSelect = '<select onchange="setEffect(activeWay,this.value)"><option value="none">None</option><option value="3Droof">3D Roof</option><option value="3Dblock">3D Block</option><option value="2Dpark">Park</option><option value="2Dcoffee">Coffee</option><option value="2Dcorn">Corn</option><option value="2Dwatermelon">Watermelon</option></select>';
     effectSelect = effectSelect.replace('value="' + promoted[activeWay].effect + '"', 'value="' + promoted[activeWay].effect + '" selected="selected"');
     menuPopup.setContent(header + tableOfData(shard) + effectSelect );
     map.openPopup( menuPopup );
