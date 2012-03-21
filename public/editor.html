@@ -781,16 +781,17 @@ function menu_on_click(p, shard){
   });
 }
 function setEffect(wayid, settype){
-  if(promoted[activeWay].effect == settype){
+  if(promoted[wayid].effect == settype){
     // ignore if unchanged effect
     return;
   }
-  if(promoted[activeWay].drawnLayer){
+  if(promoted[wayid].drawnLayer){
     // remove previously drawn layer if it exists
-    map.removeLayer(promoted[activeWay].drawnLayer);
-    promoted[activeWay].drawnLayer = null;
+    map.removeLayer(promoted[wayid].drawnLayer);
+    promoted[wayid].drawnLayer = null;
   }
   if(settype.indexOf("3D") > -1){
+    var b_index = buildings.length;
     if(!promoted[wayid].building){
       // create listing in building index
       buildings.push({
@@ -805,20 +806,29 @@ function setEffect(wayid, settype){
       });
       prepBuilding(buildings.length-1);
     }
+    else{
+      for(var b=0;b<buildings.length;b++){
+        if(buildings[b].id == wayid){
+          b_index = b;
+          break;
+        }
+      }
+    }
     promoted[wayid].building = true;
-    changeColor(activeWay);
+    writeBuilding(b_index);
   }
-  else if(promoted[activeWay].effect.indexOf("3D") > -1){
+  else if(promoted[wayid].effect.indexOf("3D") > -1){
     // need to remove listing from building index
     promoted[wayid].building = false;
     for(var b=0;b<buildings.length;b++){
-      if(buildings[b].id == activeWay){
+      if(buildings[b].id == wayid){
         buildings.splice(b,1);
         break;
       }
     }
   }
   if(settype.indexOf("2D") > -1){
+    var p_index = parks.length;
     if(!promoted[wayid].tiled){
       parks.push({
         id: wayid,
@@ -828,8 +838,18 @@ function setEffect(wayid, settype){
       });
       prepPark(parks.length-1);
     }
+    else{
+      for(var b=0;b<parks.length;b++){
+        if(parks[b].id == wayid){
+          p_index = b;
+          break;
+        }
+      }    
+    }
+    promoted[wayid].tiled = true;
+    writePark(p_index);
   }
-  else if(promoted[activeWay].effect.indexOf("2D") > -1){
+  else if(promoted[wayid].effect.indexOf("2D") > -1){
     // need to remove listing from park index
     promoted[wayid].tiled = false;
     for(var b=0;b<parks.length;b++){
@@ -839,7 +859,7 @@ function setEffect(wayid, settype){
       }
     }
   }
-  promoted[activeWay].effect = settype;
+  promoted[wayid].effect = settype;
 }
 function tableOfData(dict){
   var table = "<table class='table-condensed table-striped'>";
