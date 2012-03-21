@@ -26,8 +26,8 @@ function init(){
   baseMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
 
   map = new L.Map('map');
-  cityll = new L.LatLng(32.8406946, -83.6324022);
-  map.setView(cityll, 17).addLayer(baseMapLayer);
+  cityll = new L.LatLng(32.836183, -83.631266);
+  map.setView(cityll, 18).addLayer(baseMapLayer);
 
   miniIcon = L.Icon.extend({
     iconSize: new L.Point(20, 36),
@@ -780,8 +780,8 @@ function processOSM(data){
       }
       // add this way
       var wll = data[i].line.slice(0);
-      for(var i=0;i<wll.length;i++){
-        wll[i] = new L.LatLng(wll[i][0], wll[i][1]);
+      for(var j=0;j<wll.length;j++){
+        wll[j] = new L.LatLng(wll[j][0], wll[j][1]);
       }
       var activePoly = new L.Polygon( wll, { color: "#ccc", fillOpacity: 0.3, opacity: 0.65 } );
       activePoly.bindPopup( '<h3>' + (data[i].name || data[i].designation || data[i].wayid) + '</h3>' + tableOfData(data[i]));
