@@ -16,8 +16,8 @@ var baseMapLayer;
     </script>
     
     <script type="text/javascript">
-var map, baseIcon, tree, miniIcon, activeWay;
-var corn, watermelon, coffee;
+var map, baseIcon, miniIcon, activeWay, menuPopup;
+var tree, corn, watermelon, coffee;
 var promoted = { };
 
 function init(){
@@ -28,6 +28,8 @@ function init(){
   map = new L.Map('map');
   cityll = new L.LatLng(32.836183, -83.631266);
   map.setView(cityll, 18).addLayer(baseMapLayer);
+  
+  menuPopup = new L.Popup();
 
   miniIcon = L.Icon.extend({
     iconSize: new L.Point(20, 36),
@@ -59,7 +61,7 @@ function init(){
 	  }
 	}
   );
-  $('#promote-effect').on("change",
+  /*$('#promote-effect').on("change",
     function(){
       if(activeWay){
         promoted[activeWay].effect = $('#promote-effect')[0].value;
@@ -78,7 +80,7 @@ function init(){
         changeColor( activeWay );
       }
     }
-  );
+  );*/
   $('#build-levels').on("change",
     function(){
       if(activeWay){
@@ -793,7 +795,8 @@ function processOSM(data){
         wll[j] = new L.LatLng(wll[j][0], wll[j][1]);
       }
       var activePoly = new L.Polygon( wll, { color: "#00f", fillOpacity: 0.3, opacity: 0.65 } );
-      activePoly.bindPopup( '<h3>' + (data[i].name || data[i].designation || data[i].wayid) + '</h3>' + tableOfData(data[i]));
+      promoted[ data[i].wayid ] = { poly: activePoly, osmdata: data[i], effect: "none" };
+      menu_on_click(activePoly, data[i]);
       highlight_on_hover(activePoly);
       map.addLayer(activePoly);
     }
@@ -805,6 +808,20 @@ function processOSM(data){
       bounce_on_hover(marker, null);
     }
   }
+}
+function menu_on_click(p, shard){
+  p.on("click", function(e){
+    activeWay = shard.wayid;
+    menuPopup.setLatLng( p.getBounds().getCenter() );
+    var header = '<h3>' + (shard.name || shard.designation || shard.wayid) + '</h3>';
+    var effectSelect = '<select onchange="promoted[activeWay].effect=this.value;changeColor(activeWay);"><option value="none">None</option><option value="3Droof">3D Roof</option><option value="3Dblock">3D Block</option><option value="park">Park</option><option value="coffee">Coffee</option></select>';
+    effectSelect = effectSelect.replace('value="' + promoted[activeWay].effect + '"', 'value="' + promoted[activeWay].effect + '" selected="selected"');
+    menuPopup.setContent(header + tableOfData(shard) + effectSelect );
+    map.openPopup( menuPopup );
+  });
+}
+function effectSelect(wayid){
+  var effect = 
 }
 function tableOfData(dict){
   var table = "<table class='table-condensed table-striped'>";
