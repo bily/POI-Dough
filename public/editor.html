@@ -436,12 +436,9 @@ function writeBuilding(b){
   
   var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/6*Math.pow(1.7,levelmax),lngmin-lngspan/6*Math.pow(1.7,levelmax)), new L.LatLng(latmax+latspan/6*Math.pow(1.7,levelmax),lngmax+lngspan/6*Math.pow(1.7,levelmax)));
   var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
+  menu_on_click(imagePopover, promoted[ buildings[b].id ].osmdata);
   map.addLayer(image);
   promoted[buildings[b].id].drawnLayer = image;
-  var bnds = imageBounds;
-  var imagePopover = new L.Polygon( [ bnds.getNorthEast(), bnds.getNorthWest(), bnds.getSouthWest(), bnds.getSouthEast() ], { color: "#000", fillOpacity: 0.5, opacity: 0 } );
-  menu_on_click(imagePopover, promoted[ buildings[b].id ].osmdata);
-  map.addLayer(imagePopover);
 }
 
 function writePark(p){
