@@ -146,7 +146,7 @@ function prepBuildings(){
     marker = new L.Marker( new L.LatLng( ctrlat, ctrlng ), { icon: fixIcon } );
     map.addLayer(marker);
     marker.bindPopup( '<h3>' + buildings[b].name + '</h3><canvas id="popupCanvas" width="240" height="240"></canvas>' );
-    activate_on_hover(marker, b);
+    bounce_on_hover(marker, b);
   }
 }
 
@@ -622,7 +622,7 @@ function toPixel(latlng, ctrlat, ctrlng, scale){
   var pix_y = Math.round( (ctrlat - latlng[0]) * scale + pix_y_offset);
   return [ pix_x, pix_y ];
 }
-function activate_on_hover(m, b){
+function bounce_on_hover(m, b){
   m.on('mouseover', function(e){
     // glow icon?
     var boponalready = false;
@@ -761,6 +761,12 @@ function bop(icon, frame){
   }, 40)
 }
 
+function highlight_on_hover(p){
+  p.on("mouseover", function(e){
+    p.setStyle( { color: "#f00" } );
+  });
+}
+
 function importOSM(){
   $("#importButton").addClass("disabled");
   var ne = map.getBounds().getNorthEast();
@@ -785,9 +791,7 @@ function processOSM(data){
       }
       var activePoly = new L.Polygon( wll, { color: "#ccc", fillOpacity: 0.3, opacity: 0.65 } );
       activePoly.bindPopup( '<h3>' + (data[i].name || data[i].designation || data[i].wayid) + '</h3>' + tableOfData(data[i]));
-      activePoly.on("mouseover", function(e){
-        activePoly.setStyle( { color: "#f00" } );
-      });
+      highlight_on_hover(activePoly);
       map.addLayer(activePoly);
     }
     else{
@@ -795,7 +799,7 @@ function processOSM(data){
       var marker = new L.Marker( new L.LatLng( data[i].lat, data[i].lon ), { icon: new miniIcon() } );
       map.addLayer(marker);
       marker.bindPopup( '<h3>' + (data[i].name || data[i].id) + '</h3>' + tableOfData(data[i]))
-      activate_on_hover(marker, null);
+      bounce_on_hover(marker, null);
     }
   }
 }
