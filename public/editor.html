@@ -765,6 +765,9 @@ function highlight_on_hover(p){
   p.on("mouseover", function(e){
     p.setStyle( { color: "#f00" } );
   });
+  p.on("mouseout", function(e){
+    p.setStyle( { color: "#00f" } );
+  });
 }
 
 function importOSM(){
@@ -789,7 +792,7 @@ function processOSM(data){
       for(var j=0;j<wll.length;j++){
         wll[j] = new L.LatLng(wll[j][0], wll[j][1]);
       }
-      var activePoly = new L.Polygon( wll, { color: "#ccc", fillOpacity: 0.3, opacity: 0.65 } );
+      var activePoly = new L.Polygon( wll, { color: "#00f", fillOpacity: 0.3, opacity: 0.65 } );
       activePoly.bindPopup( '<h3>' + (data[i].name || data[i].designation || data[i].wayid) + '</h3>' + tableOfData(data[i]));
       highlight_on_hover(activePoly);
       map.addLayer(activePoly);
@@ -806,7 +809,7 @@ function processOSM(data){
 function tableOfData(dict){
   var table = "<table class='table-condensed table-striped'>";
   for(var k in dict){
-    if(k == "id" || k == "wayid" || k == "name" || k == "lat" || k == "lon" || k == "line"){
+    if(k == "id" || k == "wayid" || k == "name" || k == "lat" || k == "lon" || k == "line" || k == "user"){
       continue;
     }
     table += "<tr><td>" + k + "</td><td>" + dict[k] + "</td></tr>";
