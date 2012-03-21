@@ -779,7 +779,7 @@ function processOSM(data){
       	continue;
       }
       // add this way
-      var wll = w.line.slice(0);
+      var wll = data[i].line.slice(0);
       for(var i=0;i<wll.length;i++){
         wll[i] = new L.LatLng(wll[i][0], wll[i][1]);
       }
