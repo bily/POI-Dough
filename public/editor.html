@@ -12,7 +12,7 @@
 	<script type="text/javascript">
 var buildings = [ ];
 var parks = [ ];
-var baseMapLayer;
+var extraMapLayer;
     </script>
     
     <script type="text/javascript">
@@ -23,7 +23,7 @@ var promoted = { };
 function init(){
   var tileURL = "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png";
   var attribution = "Map data &copy; 2012 OpenStreetMap contributors, Tiles by MapQuest";
-  baseMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
+  var baseMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
 
   map = new L.Map('map');
   cityll = new L.LatLng(32.836183, -83.631266);
@@ -45,7 +45,7 @@ function init(){
     popupAnchor: new L.Point(0, -12)
   });
   
-  $("#colorPick").colorPicker();
+  /*$("#colorPick").colorPicker();
   $('#colorPick').on("change",
 	function(){
 	  if(activeWay){
@@ -60,43 +60,7 @@ function init(){
 	    changeRoofColor( activeWay )
 	  }
 	}
-  );
-  /*$('#promote-effect').on("change",
-    function(){
-      if(activeWay){
-        promoted[activeWay].effect = $('#promote-effect')[0].value;
-        if(promoted[activeWay].effect.indexOf("3D") > -1){
-          $('#build-levels')[0].disabled = false;
-          $('#colorPick').parent().show();
-          $('#roofPick').parent().show();
-          $('#iconPick').hide();
-        }
-        else{
-          $('#build-levels')[0].disabled = true;
-          $('#colorPick').parent().hide();
-          $('#roofPick').parent().hide();
-          $('#iconPick').show();
-        }
-        changeColor( activeWay );
-      }
-    }
   );*/
-  $('#build-levels').on("change",
-    function(){
-      if(activeWay){
-        buildings[promoted[activeWay].index].sections[0].levels = parseInt( $('#build-levels')[0].value );
-        changeColor( activeWay );
-      }
-    }
-  );
-  $('#iconPick').on("change",
-    function(){
-      if(activeWay){
-        parks[promoted[activeWay].index].texture = $('#iconPick')[0].value;
-        writePark(promoted[activeWay].index);
-      }
-    }
-  );
   tree = new Image();
   tree.src = "/treeblot.png";
   corn = new Image();
@@ -186,30 +150,30 @@ function darken(hexcolor){
 
 function changeTiles(){
   var tiles = $('#mapTiler')[0].value;
-  if(baseMapLayer){
-	map.removeLayer(baseMapLayer);
+  if(extraMapLayer){
+	map.removeLayer(extraMapLayer);
   }
   if(tiles == "mapquest"){
     var tileURL = "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png";
     var attribution = "Map data &copy; 2012 OpenStreetMap contributors, Tiles by MapQuest";
-    baseMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
+    extraMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
   }
   else if(tiles == "mapnik"){
     var tileURL = 'http://tile.openstreetmap.org/{z}/{x}/{y}.png';
     var attribution = 'Map data &copy; 2012 OpenStreetMap contributors',
-    baseMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
+    extraMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
   }
   else if(tiles == "transit"){
     var tileURL = "http://{s}.tile2.opencyclemap.org/transport/{z}/{x}/{y}.png";
     var attribution = 'Map data &copy; 2012 OpenStreetMap contributors, Tiles by Andy Allan',
-    baseMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
+    extraMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
   }
   else if(tiles == "terrain"){
     var tileURL = "http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg";
     var attribution = "Map data &copy; 2012 OpenStreetMap contributors, Tiles by Mike Migurski of Stamen Design";
-    baseMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
+    extraMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
   }
-  map.addLayer(baseMapLayer);
+  map.addLayer(extraMapLayer);
 }
 
 function writeBuilding(b){
@@ -470,10 +434,11 @@ function writeBuilding(b){
     }
   }
   
-  var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/6*Math.pow(2,levelmax),lngmin-lngspan/6*Math.pow(2,levelmax)), new L.LatLng(latmax+latspan/6*Math.pow(2,levelmax),lngmax+lngspan/6*Math.pow(2,levelmax)));
+  var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/6*Math.pow(1.7,levelmax),lngmin-lngspan/6*Math.pow(1.7,levelmax)), new L.LatLng(latmax+latspan/6*Math.pow(1.7,levelmax),lngmax+lngspan/6*Math.pow(1.7,levelmax)));
   var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
   map.addLayer(image);
   promoted[buildings[b].id].drawnLayer = image;
+  menu_on_click(image, promoted[ buildings[b].id ].osmdata);
 }
 
 function writePark(p){
@@ -548,8 +513,8 @@ function writePark(p){
   var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
   map.addLayer(image);
   promoted[parks[p].id].drawnLayer = image;
+  menu_on_click(image, promoted[ parks[p].id ].osmdata);
 }
-
 function ptInPoly(pt, polyCords){
     var pointX = pt[0];
     var pointY = pt[1];
@@ -561,21 +526,6 @@ function ptInPoly(pt, polyCords){
 	}
 	return c;
 }
-
-function changeRoofColor(wayid){
-	var hexcolor = $("#roofPick")[0].value;
-	promoted[wayid].roofcolor = hexcolor;
-	buildings[promoted[wayid].index].roofcolor = hexcolor;
-	changeColor(wayid);
-}
-function changeColor(wayid){
-	var hexcolor = $("#colorPick")[0].value;
-	promoted[wayid].color = hexcolor;
-	buildings[promoted[wayid].index].color = hexcolor;
-	buildings[promoted[wayid].index].effect = promoted[wayid].effect;
-	writeBuilding(promoted[wayid].index);
-}
-
 var pix_x_offset = 150; // set to 1/2 the width of the canvas element before calling toPixel
 var pix_y_offset = 150; // set to 1/2 the height of the canvas element before calling toPixel
 function toPixel(latlng, ctrlat, ctrlng, scale){
@@ -598,107 +548,6 @@ function bounce_on_hover(m, b){
     bopon.push(m._icon);
     bop(m._icon, 0);
   });
-}
-function activate_way(m, w){
-  /*if(w.leisure == "park"){
-  	m.on('click', function(e){
-      $('#build-levels')[0].disabled = true;
-      $('#colorPick').parent().hide();
-      $('#roofPick').parent().hide();  	
-      $('#iconPick').show();
-      var p, pdex;
-      if(!promoted[w.wayid]){
-   //     $('#iconPick').value = promoted[w.wayid].icon;
-	      p = {
-	      	vertices: w.line.slice(0),
-	      	effect: "park",
-	      	index: parks.length,
-	      	texture: "watermelon"
-	      };
-	      parks.push(p);
-	      pdex = parks.length - 1;
-      }
-      else{
-	      parks[ promoted[w.wayid].index ] = {
-	      	vertices: w.line.slice(0),
-	      	effect: "park",
-	      	index: parks.length,
-	      	texture: $('#iconPick').value
-	      };
-	      pdex = promoted[w.wayid].index;
-      }
-      activeWay = w.wayid;
-      promoted[activeWay] = p;
-      prepParks();
-      writePark(pdex);
-  	});
-  }
-  else if(w.building == "yes"){
-    m.on('click', function(e){
-      $('#build-levels')[0].disabled = false;
-      $('#colorPick').parent().show();
-      $('#roofPick').parent().show();
-      $('#iconPick').hide();
-      
-      if(promoted[w.wayid]){
-        var building = buildings[promoted[w.wayid].index];
-        activeWay = null;
-        $('#promote-name')[0].innerHTML = w.name || w.designation || w.wayid;
-        $('#promote-effect')[0].value = promoted[w.wayid].effect;
-        $('#build-levels')[0].value = buildings[promoted[w.wayid].index].sections[0].levels;
-        $('#colorPick').value = promoted[w.wayid].color;
-        $('#roofPick').value = promoted[w.wayid].roofcolor;
-        activeWay = w.wayid;
-		return;
-      }
-      // show the building sketch and info
-      var latmin = 1000;
-      var latmax = -1000;
-      var lngmin = 1000;
-      var lngmax = -1000;
-      for(var i=0;i<w.line.length;i++){
-        if(w.line[i][0] > latmax){
-          latmax = w.line[i][0];
-        }
-        if(w.line[i][0] < latmin){
-          latmin = w.line[i][0];
-        }
-        if(w.line[i][1] > lngmax){
-          lngmax = w.line[i][1];
-        }
-        if(w.line[i][1] < lngmin){
-          lngmin = w.line[i][1];
-        }
-      }
-      var ctrlat = (latmax + latmin) / 2;
-      var ctrlng = (lngmax + lngmin) / 2;
-      var b = {
-    	sections: [{
-    		vertices: w.line.slice(0),
-    		levels: 1
-    	}],
-    	center: [ctrlat, ctrlng],
-    	latmin: latmin,
-    	latmax: latmax,
-    	lngmin: lngmin,
-    	lngmax: lngmax,
-    	color: "#ff0000",
-    	roofcolor: "#cccccc",
-    	effect: "3Droof"
-      };
-      buildings.push(b);
-      m.openPopup();
-      writeBuilding(buildings.length-1);
-      promoted[w.wayid] = {index: buildings.length-1, type:"building", effect: "3Droof", color: "#ff0000", roofcolor: "#cccccc" };
-      activeWay = null;
-        $('#promote-name')[0].innerHTML = w.name || w.designation || w.wayid;
-        $('#promote-effect')[0].value = promoted[w.wayid].effect;
-        $('#build-levels')[0].value = buildings[promoted[w.wayid].index].sections[0].levels;
-        $('#colorPick').value = promoted[w.wayid].color;
-        $('#roofPick').value = promoted[w.wayid].roofcolor;
-      activeWay = w.wayid;
-    });
-  }*/
 }
 var bopon = [ ];
 function bop(icon, frame){
@@ -774,7 +623,7 @@ function menu_on_click(p, shard){
     activeWay = shard.wayid;
     menuPopup.setLatLng( p.getBounds().getCenter() );
     var header = '<h3>' + (shard.name || shard.designation || shard.wayid) + '</h3>';
-    var effectSelect = '<select onchange="setEffect(activeWay,this.value)"><option value="none">None</option><option value="3Droof">3D Roof</option><option value="3Dblock">3D Block</option><option value="2Dpark">Park</option><option value="2Dcoffee">Coffee</option></select>';
+    var effectSelect = '<select onchange="setEffect(activeWay,this.value)"><option value="none">None</option><option value="3Droof">3D Roof</option><option value="3Dblock">3D Block</option><option value="2Dpark">Park</option><option value="2Dcoffee">Coffee</option><option value="2Dpumpkin">Pumpkin</option><option value="2Dcorn">Corn</option><option value="2Dwatermelon">Watermelon</option></select>';
     effectSelect = effectSelect.replace('value="' + promoted[activeWay].effect + '"', 'value="' + promoted[activeWay].effect + '" selected="selected"');
     menuPopup.setContent(header + tableOfData(shard) + effectSelect );
     map.openPopup( menuPopup );
@@ -834,7 +683,7 @@ function setEffect(wayid, settype){
         id: wayid,
 	    vertices: promoted[wayid].osmdata.line.slice(0),
 	    effect: "park",
-	    texture: "coffee"
+	    texture: settype.replace("2D","")
       });
       prepPark(parks.length-1);
     }
@@ -913,12 +762,6 @@ function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\
 	  	<form class="well">
 	  		<label>Name</label>
 	  		<span class="help-inline" id="promote-name"></span>
-	  		<!--<label>Effect</label>
-	  		<select id="promote-effect">
-	  			<option value="3Droof" selected="selected">3D Roof</option>
-	  			<option value="3Dblock">3D Block</option>
-	  			<option value="park">Park</option>
-	  		</select>-->
 	  		<label>Levels</label>
 	  		<input id="build-levels" type="text" value="1"/>
 	  		<div>
@@ -929,21 +772,6 @@ function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\
 		  		<label for="roofPick">Roof Color</label>
 	  			<input id="roofPick" type="text" value="#000000"/>
 	  		</div>
-	  		<label>Textures</label>
-	  		<select id="iconPick">
-	  			<option value="tree">
-	  				Tree
-	  			</option>
-	  			<option value="corn">
-	  				Corn
-	  			</option>
-	  			<option value="coffee">
-	  				Coffee
-	  			</option>
-	  			<option value="watermelon">
-	  				Watermelon
-	  			</option>
-	  		</select>
 	  	</form>
 	  </div>
 
