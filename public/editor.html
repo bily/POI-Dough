@@ -572,12 +572,18 @@ function bop(icon, frame){
   }, 40)
 }
 
-function highlight_on_hover(p){
+function highlight_on_hover(p, wayid){
   p.on("mouseover", function(e){
     p.setStyle( { color: "#f00" } );
+    if(promoted[wayid].effect != "None"){
+      p.setStyle( { opacity: 0 } );
+    }
   });
   p.on("mouseout", function(e){
     p.setStyle( { color: "#00f" } );
+    if(promoted[wayid].effect != "None"){
+      p.setStyle( { opacity: 0 } );
+    }
   });
 }
 
@@ -606,8 +612,8 @@ function processOSM(data){
       var activePoly = new L.Polygon( wll, { color: "#00f", fillOpacity: 0.3, opacity: 0.65 } );
       promoted[ data[i].wayid ] = { poly: activePoly, osmdata: data[i], effect: "none" };
       menu_on_click(activePoly, data[i]);
-      highlight_on_hover(activePoly);
-      map.addLayer(activePoly);
+      highlight_on_hover(activePoly, data[i].wayid);
+      map.addLayer(activePoly, data[i].wayid);
     }
     else{
       // show this node as a marker
