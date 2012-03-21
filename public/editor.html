@@ -438,9 +438,11 @@ function writeBuilding(b){
   var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
   map.addLayer(image);
   promoted[buildings[b].id].drawnLayer = image;
+  menu_on_click(image, promoted[ buildings[b].id ].osmdata);
   console.log(image);
-  image.bindPopup("hello building popup world");
-  //menu_on_click(image, promoted[ buildings[b].id ].osmdata);
+  image.on("mouseover", function(e){
+    console.log("image moused over");
+  });
 }
 
 function writePark(p){
