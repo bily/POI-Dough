@@ -93,9 +93,7 @@ function init(){
     function(){
       if(activeWay){
         parks[promoted[activeWay].index].texture = $('#iconPick')[0].value;
-	    map.removeLayer(parks[promoted[activeWay].index].mapped);
-    	parks[promoted[activeWay].index].mapped = false;
-        writePark(promoted[activeWay].index, 'parkCanvas');
+        writePark(promoted[activeWay].index);
       }
     }
   );
@@ -109,81 +107,50 @@ function init(){
   watermelon.src = "/watermelon.png";
 }
 
-function prepBuildings(){
-  for(var b=0; b<buildings.length; b++){
-    // determine center of whole building, including all sections
-    var latmax = -1000;
-    var latmin = 1000;
-    var lngmax = -1000;
-    var lngmin = 1000;
-    for(var s=0; s<buildings[b].sections.length; s++){
-      for(var v=0; v<buildings[b].sections[s].vertices.length; v++){
-        var pt = buildings[b].sections[s].vertices[v];
-        if(pt[0] > latmax){
-          latmax = pt[0];
-        }
-        if(pt[0] < latmin){
-          latmin = pt[0];
-        }
-        if(pt[1] > lngmax){
-          lngmax = pt[1];
-        }
-        if(pt[1] < lngmin){
-          lngmin = pt[1];
-        }
-      }
+function prepBuilding(b){
+  // determine center of whole building, including all sections
+  var latmax = -1000;
+  var latmin = 1000;
+  var lngmax = -1000;
+  var lngmin = 1000;
+  for(var s=0; s<buildings[b].sections.length; s++){
+    for(var v=0; v<buildings[b].sections[s].vertices.length; v++){
+      var pt = buildings[b].sections[s].vertices[v];
+      latmax = Math.max(latmax, pt[0]);
+      latmin = Math.min(latmin, pt[0]);
+      lngmax = Math.max(lngmax, pt[1]);
+      lngmin = Math.min(lngmin, pt[1]);
     }
-    var ctrlat = (latmax + latmin) / 2;
-    var ctrlng = (lngmax + lngmin) / 2;
-    buildings[b].center = [ctrlat, ctrlng];
-    buildings[b].latmin = latmin;
-    buildings[b].latmax = latmax;
-    buildings[b].lngmin = lngmin;
-    buildings[b].lngmax = lngmax;
-    buildings[b].mapped = false;
-
-    // place a marker at the center of the footprint
-    var iconUrl = 'http://i.imgur.com/OlCXE.jpg';
-    var fixIcon = new baseIcon( iconUrl );
-    marker = new L.Marker( new L.LatLng( ctrlat, ctrlng ), { icon: fixIcon } );
-    map.addLayer(marker);
-    marker.bindPopup( '<h3>' + buildings[b].name + '</h3><canvas id="popupCanvas" width="240" height="240"></canvas>' );
-    bounce_on_hover(marker, b);
   }
+  var ctrlat = (latmax + latmin) / 2;
+  var ctrlng = (lngmax + lngmin) / 2;
+  buildings[b].center = [ctrlat, ctrlng];
+  buildings[b].latmin = latmin;
+  buildings[b].latmax = latmax;
+  buildings[b].lngmin = lngmin;
+  buildings[b].lngmax = lngmax;
 }
 
-function prepParks(){
-  for(var p=0; p<parks.length; p++){
-    // determine center of park
-    var latmax = -1000;
-    var latmin = 1000;
-    var lngmax = -1000;
-    var lngmin = 1000;
-    for(var v=0; v<parks[p].vertices.length; v++){
-      var pt = parks[p].vertices[v];
-      if(pt[0] > latmax){
-        latmax = pt[0];
-      }
-      if(pt[0] < latmin){
-        latmin = pt[0];
-      }
-      if(pt[1] > lngmax){
-        lngmax = pt[1];
-      }
-      if(pt[1] < lngmin){
-        lngmin = pt[1];
-      }
-    }
-    var ctrlat = (latmax + latmin) / 2;
-    var ctrlng = (lngmax + lngmin) / 2;
-    parks[p].center = [ctrlat, ctrlng];
-    parks[p].latmin = latmin;
-    parks[p].latmax = latmax;
-    parks[p].lngmin = lngmin;
-    parks[p].lngmax = lngmax;
-    parks[p].mapped = false;
-    writePark(p, 'parkCanvas');
+function prepPark(p){
+  // determine center of park
+  var latmax = -1000;
+  var latmin = 1000;
+  var lngmax = -1000;
+  var lngmin = 1000;
+  for(var v=0; v<parks[p].vertices.length; v++){
+    var pt = parks[p].vertices[v];
+    latmax = Math.max(latmax, pt[0]);
+    latmin = Math.min(latmin, pt[0]);
+    lngmax = Math.max(lngmax, pt[1]);
+    lngmin = Math.min(lngmin, pt[1]);
   }
+  var ctrlat = (latmax + latmin) / 2;
+  var ctrlng = (lngmax + lngmin) / 2;
+  parks[p].center = [ctrlat, ctrlng];
+  parks[p].latmin = latmin;
+  parks[p].latmax = latmax;
+  parks[p].lngmin = lngmin;
+  parks[p].lngmax = lngmax;
 }
 
 function darken(hexcolor){
@@ -245,8 +212,8 @@ function changeTiles(){
   map.addLayer(baseMapLayer);
 }
 
-function writeBuilding(b, canvasid){
-  var canvas = $('#' + canvasid)[0];
+function writeBuilding(b){
+  var canvas = $('#parkCanvas')[0];
 
   var ctrlat = buildings[b].center[0];
   var ctrlng = buildings[b].center[1];
@@ -503,16 +470,14 @@ function writeBuilding(b, canvasid){
     }
   }
   
-  if(!buildings[b].mapped){
-    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/6*Math.pow(2,levelmax),lngmin-lngspan/6*Math.pow(2,levelmax)), new L.LatLng(latmax+latspan/6*Math.pow(2,levelmax),lngmax+lngspan/6*Math.pow(2,levelmax)));
-    var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
-    buildings[b].mapped = image;
-    map.addLayer(image);
-  }
+  var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/6*Math.pow(2,levelmax),lngmin-lngspan/6*Math.pow(2,levelmax)), new L.LatLng(latmax+latspan/6*Math.pow(2,levelmax),lngmax+lngspan/6*Math.pow(2,levelmax)));
+  var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
+  map.addLayer(image);
+  promoted[buildings[b].id].drawnLayer = image;
 }
 
-function writePark(p, canvasid){
-  var canvas = $('#' + canvasid)[0];
+function writePark(p){
+  var canvas = $('#parkCanvas')[0];
   canvas.width = 300;
   canvas.height = 300;
   var ctx = canvas.getContext('2d');
@@ -575,16 +540,14 @@ function writePark(p, canvasid){
   }
   ctx.putImageData(imgData, 0, 0);
   
-  if(!parks[p].mapped){
-    var latspan = latmax - latmin;
-    var lngspan = lngmax - lngmin;
-    var latspan = Math.max(latspan, lngspan);
-    var lngspan = latspan;
-    var imageBounds = new L.LatLngBounds(new L.LatLng(latmin,lngmin), new L.LatLng(latmax,lngmax));
-    var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
-    parks[p].mapped = image;
-    map.addLayer(image);
-  }
+  var latspan = latmax - latmin;
+  var lngspan = lngmax - lngmin;
+  var latspan = Math.max(latspan, lngspan);
+  var lngspan = latspan;
+  var imageBounds = new L.LatLngBounds(new L.LatLng(latmin,lngmin), new L.LatLng(latmax,lngmax));
+  var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
+  map.addLayer(image);
+  promoted[parks[p].id].drawnLayer = image;
 }
 
 function ptInPoly(pt, polyCords){
@@ -609,10 +572,8 @@ function changeColor(wayid){
 	var hexcolor = $("#colorPick")[0].value;
 	promoted[wayid].color = hexcolor;
 	buildings[promoted[wayid].index].color = hexcolor;
-	map.removeLayer(buildings[promoted[wayid].index].mapped);
-	buildings[promoted[wayid].index].mapped = false;
 	buildings[promoted[wayid].index].effect = promoted[wayid].effect;
-	writeBuilding(promoted[wayid].index, 'parkCanvas');
+	writeBuilding(promoted[wayid].index);
 }
 
 var pix_x_offset = 150; // set to 1/2 the width of the canvas element before calling toPixel
@@ -669,7 +630,7 @@ function activate_way(m, w){
       activeWay = w.wayid;
       promoted[activeWay] = p;
       prepParks();
-      writePark(pdex, 'parkCanvas');
+      writePark(pdex);
   	});
   }
   else if(w.building == "yes"){
@@ -723,12 +684,11 @@ function activate_way(m, w){
     	lngmax: lngmax,
     	color: "#ff0000",
     	roofcolor: "#cccccc",
-    	effect: "3Droof",
-    	mapped: false
+    	effect: "3Droof"
       };
       buildings.push(b);
       m.openPopup();
-      writeBuilding(buildings.length-1, 'parkCanvas');
+      writeBuilding(buildings.length-1);
       promoted[w.wayid] = {index: buildings.length-1, type:"building", effect: "3Droof", color: "#ff0000", roofcolor: "#cccccc" };
       activeWay = null;
         $('#promote-name')[0].innerHTML = w.name || w.designation || w.wayid;
@@ -814,11 +774,72 @@ function menu_on_click(p, shard){
     activeWay = shard.wayid;
     menuPopup.setLatLng( p.getBounds().getCenter() );
     var header = '<h3>' + (shard.name || shard.designation || shard.wayid) + '</h3>';
-    var effectSelect = '<select onchange="promoted[activeWay].effect=this.value;changeColor(activeWay);"><option value="none">None</option><option value="3Droof">3D Roof</option><option value="3Dblock">3D Block</option><option value="park">Park</option><option value="coffee">Coffee</option></select>';
+    var effectSelect = '<select onchange="setEffect(activeWay,this.value)"><option value="none">None</option><option value="3Droof">3D Roof</option><option value="3Dblock">3D Block</option><option value="2Dpark">Park</option><option value="2Dcoffee">Coffee</option></select>';
     effectSelect = effectSelect.replace('value="' + promoted[activeWay].effect + '"', 'value="' + promoted[activeWay].effect + '" selected="selected"');
     menuPopup.setContent(header + tableOfData(shard) + effectSelect );
     map.openPopup( menuPopup );
   });
+}
+function setEffect(wayid, settype){
+  if(promoted[activeWay].effect == settype){
+    // ignore if unchanged effect
+    return;
+  }
+  if(promoted[activeWay].drawnLayer){
+    // remove previously drawn layer if it exists
+    map.removeLayer(promoted[activeWay].drawnLayer);
+    promoted[activeWay].drawnLayer = null;
+  }
+  if(settype.indexOf("3D") > -1){
+    if(!promoted[wayid].building){
+      // create listing in building index
+      buildings.push({
+        id: wayid,
+    	sections: [{
+    		vertices: promoted[wayid].osmdata.line.slice(0),
+    		levels: 1
+    	}],
+    	color: "#ff0000",
+    	roofcolor: "#cccccc",
+    	effect: settype
+      });
+      prepBuilding(buildings.length-1);
+    }
+    promoted[wayid].building = true;
+    changeColor(activeWay);
+  }
+  else if(promoted[activeWay].effect.indexOf("3D") > -1){
+    // need to remove listing from building index
+    promoted[wayid].building = false;
+    for(var b=0;b<buildings.length;b++){
+      if(buildings[b].id == activeWay){
+        buildings.splice(b,1);
+        break;
+      }
+    }
+  }
+  if(settype.indexOf("2D") > -1){
+    if(!promoted[wayid].tiled){
+      parks.push({
+        id: wayid,
+	    vertices: promoted[wayid].osmdata.line.slice(0),
+	    effect: "park",
+	    texture: "coffee"
+      });
+      prepPark(parks.length-1);
+    }
+  }
+  else if(promoted[activeWay].effect.indexOf("2D") > -1){
+    // need to remove listing from park index
+    promoted[wayid].tiled = false;
+    for(var b=0;b<parks.length;b++){
+      if(parks[b].id == activeWay){
+        parks.splice(b,1);
+        break;
+      }
+    }
+  }
+  promoted[activeWay].effect = settype;
 }
 function tableOfData(dict){
   var table = "<table class='table-condensed table-striped'>";
@@ -872,12 +893,12 @@ function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\
 	  	<form class="well">
 	  		<label>Name</label>
 	  		<span class="help-inline" id="promote-name"></span>
-	  		<label>Effect</label>
+	  		<!--<label>Effect</label>
 	  		<select id="promote-effect">
 	  			<option value="3Droof" selected="selected">3D Roof</option>
 	  			<option value="3Dblock">3D Block</option>
 	  			<option value="park">Park</option>
-	  		</select>
+	  		</select>-->
 	  		<label>Levels</label>
 	  		<input id="build-levels" type="text" value="1"/>
 	  		<div>
