@@ -609,6 +609,13 @@ function processOSM(data){
       }
       var activePoly = new L.Polygon( wll, { color: "#00f", fillOpacity: 0.3, opacity: 0.65 } );
       promoted[ data[i].wayid ] = { poly: activePoly, osmdata: data[i], effect: "none" };
+
+      // test editing
+      activePoly.editing.enable();
+      activePoly.on('edit', function() {
+        console.log(activePoly);
+      });
+
       menu_on_click(activePoly, data[i]);
       highlight_on_hover(activePoly, data[i].wayid);
       map.addLayer(activePoly, data[i].wayid);
