@@ -70,15 +70,12 @@ function init(){
 	  }
 	}
   );*/
-  tree = new Image();
-  tree.src = "/treeblot.png";
-  corn = new Image();
-  corn.src = "/corn.png";
-  coffee = new Image();
-  coffee.src = "/coffee.png";
-  watermelon = new Image();
-  watermelon.src = "/watermelon.png";
 }
+
+<% poimap.textures.each do |texture| %>
+  var <%= texture.name %> = new Image();
+  <%= texture.name %>.src = "/<%= texture.url %>";
+<% end %>
 
 function prepBuilding(b){
   // determine center of whole building, including all sections
@@ -155,34 +152,6 @@ function darken(hexcolor){
 	}
 	hexcolor = "#" + rgb.join("");
 	return hexcolor;
-}
-
-function changeTiles(){
-  var tiles = $('#mapTiler')[0].value;
-  if(extraMapLayer){
-	map.removeLayer(extraMapLayer);
-  }
-  if(tiles == "mapquest"){
-    var tileURL = "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png";
-    var attribution = "Map data &copy; 2012 OpenStreetMap contributors, Tiles by MapQuest";
-    extraMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
-  }
-  else if(tiles == "mapnik"){
-    var tileURL = 'http://tile.openstreetmap.org/{z}/{x}/{y}.png';
-    var attribution = 'Map data &copy; 2012 OpenStreetMap contributors',
-    extraMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
-  }
-  else if(tiles == "transit"){
-    var tileURL = "http://{s}.tile2.opencyclemap.org/transport/{z}/{x}/{y}.png";
-    var attribution = 'Map data &copy; 2012 OpenStreetMap contributors, Tiles by Andy Allan',
-    extraMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
-  }
-  else if(tiles == "terrain"){
-    var tileURL = "http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg";
-    var attribution = "Map data &copy; 2012 OpenStreetMap contributors, Tiles by Mike Migurski of Stamen Design";
-    extraMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
-  }
-  map.addLayer(extraMapLayer);
 }
 
 function writeBuilding(b){
@@ -772,14 +741,6 @@ function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\
 	  	<button id="importButton" class="btn btn-primary" onclick="importOSM()">
 	  	  Data from OSM
 	  	</button>
-	  	
-	  	<h3>Map</h3>
-	  	<select id="mapTiler" onchange="changeTiles()">
-	  		<option value="mapquest" selected="selected">MapQuest Open</option>
-	  		<option value="mapnik">OSM: Mapnik</option>
-	  		<option value="transit">Transit</option>
-	  		<option value="terrain">Stamen: Terrain</option>
-	  	</select>
 	  	
 	  	<h3>Style</h3>
 	  	<form class="well">
