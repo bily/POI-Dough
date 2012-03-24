@@ -61,6 +61,9 @@ require 'preview_store'
 require 'document'
 require 'process_pdf'
 
+# start data model
+require 'poimap'
+
 # Routes
 set :public_folder, "#{PdfArchive.root}/public"
 
@@ -346,6 +349,16 @@ get '/osmbbox/:bbox' do
 	end
 	printout += '])'
 	printout
+end
+
+post '/savemap' do
+  saved = POIMap.create({
+      :buildings => params["bld"].split(","),
+      :parks => params["prk"].split(","),
+      :basemap => "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png",
+      :createdby => "POI Dough Test",
+      :updated => Time.now()
+    })
 end
 
 get '/pdf' do
