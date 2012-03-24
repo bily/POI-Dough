@@ -351,14 +351,29 @@ get '/osmbbox/:bbox' do
 	printout
 end
 
+get '/openmap' do
+  saved = POIMap.find!(params["id"])
+  return saved.updated.to_s
+end
+
 post '/savemap' do
-  saved = POIMap.create({
+  if(params["id"] != nil)
+    saved = POIMap.find!(params["id"])
+    #saved.buildings => params["bld"].split(","),
+    #saved.parks => params["prk"].split(","),
+    #saved.basemap = "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png",
+    #saved.createdby = "POI Dough Test",
+    saved.updated = Time.now()
+    saved.save()
+  else
+    saved = POIMap.create({
       :buildings => params["bld"].split(","),
       :parks => params["prk"].split(","),
       :basemap => "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png",
       :createdby => "POI Dough Test",
       :updated => Time.now()
     })
+  end
 end
 
 get '/pdf' do
