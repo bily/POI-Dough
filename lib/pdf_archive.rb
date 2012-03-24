@@ -352,8 +352,8 @@ get '/osmbbox/:bbox' do
 end
 
 get '/openmap' do
-  saved = POIMap.find!(params["id"])
-  return saved.updated.to_s
+  openmap = POIMap.find!(params["id"])
+  erb :mapview, :locals => { :poimap => openmap }
 end
 
 post '/savemap' do
