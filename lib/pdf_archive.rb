@@ -91,11 +91,11 @@ get '/isometrics/:wayid' do
 		name = 'OSM Way'
       
 		# opening for this building format
-		printout = "buildings.push(
-   {
+		printout = "buildings.push({
+     wayid: \"" + URI.parse(wayid) + "\",
      sections: [
        {
-         vertices: [\n"
+         vertices: ["
 
 		gotdata.each do |line|
 			if line.index('node id=') != nil
@@ -187,7 +187,7 @@ get '/textures/:wayid' do
 		# opening for this building format
 		printout = "parks.push(
    {
-   	  id: \"" + wayid + "\",
+   	  wayid: \"" + URI.parse(wayid) + "\",
       vertices: [\n"
 
 		gotdata.each do |line|
