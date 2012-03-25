@@ -90,7 +90,9 @@ tree.src = "/treeblot.png";
 
 function prepBuilding(b){
   // determine center of whole building, including all sections
-  promoted[ buildings[b].wayid ] = { };
+  promoted[ buildings[b].wayid ] = { effect: "3Dblock" };
+  buildings[b].color = "#ff0000";
+  buildings[b].roofcolor = "#cccccc";
   var latmax = -1000;
   var latmin = 1000;
   var lngmax = -1000;
@@ -115,7 +117,7 @@ function prepBuilding(b){
 
 function prepPark(p){
   // determine center of park
-  promoted[ parks[p].wayid ] = { };
+  promoted[ parks[p].wayid ] = { effect: "park" };
   var latmax = -1000;
   var latmin = 1000;
   var lngmax = -1000;
