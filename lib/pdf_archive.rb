@@ -351,8 +351,8 @@ get '/osmbbox/:bbox' do
 	printout
 end
 
-get '/openmap' do
-  openmap = POIMap.find!(params["id"])
+get '/openmap/:mapid' do
+  openmap = POIMap.find!(params[:mapid])
   erb :mapview, :locals => { :poimap => openmap }
 end
 
@@ -374,7 +374,7 @@ get '/savemap' do
       :attribution => "Data (c) 2012 OpenStreetMap, Tiles by MapQuest",
       :updated => Time.now()
     })
-    redirect '/openmap?id=' + saved._id
+    redirect '/openmap/' + saved._id
   end
 end
 
