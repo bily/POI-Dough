@@ -356,7 +356,7 @@ get '/openmap' do
   erb :mapview, :locals => { :poimap => openmap }
 end
 
-post '/savemap' do
+get '/savemap' do
   if(params["id"] != nil)
     saved = POIMap.find!(params["id"])
     #saved.buildings => params["bld"].split(","),
