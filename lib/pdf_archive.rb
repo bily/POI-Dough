@@ -359,10 +359,6 @@ end
 get '/savemap' do
   if(params["id"] != nil)
     saved = POIMap.find!(params["id"])
-    #saved.buildings => params["bld"].split(","),
-    #saved.parks => params["prk"].split(","),
-    #saved.basemap = "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png",
-    #saved.createdby = "POI Dough Test",
     saved.updated = Time.now()
     saved.save()
   else
