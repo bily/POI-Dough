@@ -286,10 +286,10 @@ get '/osmbbox/:bbox' do
 
 		elsif line.index('<way') != nil
 			# store basic properties of a way
-			myid = line.slice( line.index('id=')+4 .. line.length )
-			myid = myid.slice( 0 .. myid.index('"')-1 )
-			myusr = line.slice( line.index('user=')+6 .. line.length )
-			myusr = myusr.slice( 0 .. myusr.index('"')-1 )
+			wayid = line.slice( line.index('id=')+4 .. line.length )
+			wayid = wayid.slice( 0 .. wayid.index('"')-1 )
+			wayusr = line.slice( line.index('user=')+6 .. line.length )
+			wayusr = wayusr.slice( 0 .. wayusr.index('"')-1 )
 			wroteway = 0
 			wrotenodes = 0
 			readex = readex + 1
@@ -330,7 +330,7 @@ get '/osmbbox/:bbox' do
 						else
 							isfirst = 0
 						end
-						printout += '{wayid:"' + myid + '",user:"'+myusr+'"'
+						printout += '{wayid:"' + wayid + '",user:"'+wayusr+'"'
 					end
 					myk = line.slice( line.index('k="')+3 .. line.length )
 					myk = myk.slice( 0 .. myk.index('"')-1 )
