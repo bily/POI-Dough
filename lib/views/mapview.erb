@@ -427,9 +427,9 @@ function writeBuilding(b){
   
   var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/6*Math.pow(1.7,levelmax),lngmin-lngspan/6*Math.pow(1.7,levelmax)), new L.LatLng(latmax+latspan/6*Math.pow(1.7,levelmax),lngmax+lngspan/6*Math.pow(1.7,levelmax)));
   var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
-  menu_on_click(image, promoted[ buildings[b].id ].osmdata);
+  menu_on_click(image, promoted[ buildings[b].wayid ].osmdata);
   map.addLayer(image);
-  promoted[buildings[b].id].drawnLayer = image;
+  promoted[buildings[b].wayid].drawnLayer = image;
 }
 
 function writePark(p){
@@ -503,8 +503,8 @@ function writePark(p){
   var imageBounds = new L.LatLngBounds(new L.LatLng(latmin,lngmin), new L.LatLng(latmax,lngmax));
   var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
   map.addLayer(image);
-  promoted[parks[p].id].drawnLayer = image;
-  menu_on_click(image, promoted[ parks[p].id ].osmdata);
+  promoted[parks[p].wayid].drawnLayer = image;
+  menu_on_click(image, promoted[ parks[p].wayid ].osmdata);
 }
 function ptInPoly(pt, polyCords){
     var pointX = pt[0];
@@ -627,7 +627,7 @@ function setEffect(wayid, settype){
     }
     else{
       for(var b=0;b<buildings.length;b++){
-        if(buildings[b].id == wayid){
+        if(buildings[b].wayid == wayid){
           b_index = b;
           break;
         }
@@ -640,7 +640,7 @@ function setEffect(wayid, settype){
     // need to remove listing from building index
     promoted[wayid].building = false;
     for(var b=0;b<buildings.length;b++){
-      if(buildings[b].id == wayid){
+      if(buildings[b].wayid == wayid){
         buildings.splice(b,1);
         break;
       }
@@ -659,7 +659,7 @@ function setEffect(wayid, settype){
     }
     else{
       for(var b=0;b<parks.length;b++){
-        if(parks[b].id == wayid){
+        if(parks[b].wayid == wayid){
           p_index = b;
           break;
         }
@@ -672,7 +672,7 @@ function setEffect(wayid, settype){
     // need to remove listing from park index
     promoted[wayid].tiled = false;
     for(var b=0;b<parks.length;b++){
-      if(parks[b].id == activeWay){
+      if(parks[b].wayid == activeWay){
         parks.splice(b,1);
         break;
       }
