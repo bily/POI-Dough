@@ -371,6 +371,7 @@ get '/savemap' do
       :parks => params["prk"].split(","),
       :basemap => "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png",
       :createdby => "POI Dough Test",
+      :attribution => "Data (c) 2012 OpenStreetMap, Tiles by MapQuest",
       :updated => Time.now()
     })
   end

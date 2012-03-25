@@ -26,8 +26,8 @@ var tree, corn, watermelon, coffee;
 var promoted = { };
 
 function init(){
-  var tileURL = <%= poimap.basemap %>;
-  var attribution = <%= poimap.attribution %>;
+  var tileURL = "<%= poimap.basemap %>";
+  var attribution = "<%= poimap.attribution %>";
   var baseMapLayer = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution});
 
   map = new L.Map('map');
