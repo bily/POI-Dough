@@ -72,9 +72,9 @@ function init(){
   );*/
 }
 
-<% poimap.textures.each do |texture| %>
-  var <%= texture.name %> = new Image();
-  <%= texture.name %>.src = "/<%= texture.url %>";
+<% poimap.parks.each do |texture| %>
+  var t_<%= texture %> = new Image();
+  t_<%= texture %>.src = "/<%= texture %>";
 <% end %>
 
 function prepBuilding(b){
