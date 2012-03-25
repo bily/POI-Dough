@@ -307,7 +307,7 @@ get '/osmbbox/:bbox' do
 							else
 								isfirst = 0
 							end
-							printout += '{wayid:"' + myid + '",user:"'+myusr+'"'
+							printout += '{wayid:"' + wayid + '",user:"'+myusr+'"'
 						end
 						if wrotenodes == 0
 							printout += ',"line":['
