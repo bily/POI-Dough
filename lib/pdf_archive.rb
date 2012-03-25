@@ -374,6 +374,7 @@ get '/savemap' do
       :attribution => "Data (c) 2012 OpenStreetMap, Tiles by MapQuest",
       :updated => Time.now()
     })
+    redirect '/openmap?id=' + saved.id
   end
 end
 
