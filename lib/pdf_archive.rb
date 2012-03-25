@@ -92,7 +92,7 @@ get '/isometrics/:wayid' do
       
 		# opening for this building format
 		printout = "buildings.push({
-     wayid: \"" + URI.parse(wayid) + "\",
+     wayid: \"" + wayid + "\",
      sections: [
        {
          vertices: ["
@@ -187,7 +187,7 @@ get '/textures/:wayid' do
 		# opening for this building format
 		printout = "parks.push(
    {
-   	  wayid: \"" + URI.parse(wayid) + "\",
+   	  wayid: \"" + wayid + "\",
       vertices: [\n"
 
 		gotdata.each do |line|
