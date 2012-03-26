@@ -12,7 +12,6 @@
 	<script type="text/javascript">
 var buildings = [ ];
 var parks = [ ];
-var extraMapLayer;
     </script>
 <% poimap.buildings.each do |buildingid| %>
 <script type="text/javascript" src="/isometrics/<%= buildingid %>"></script>
@@ -24,6 +23,9 @@ var extraMapLayer;
 var map, baseIcon, miniIcon, activeWay, menuPopup;
 var tree, corn, watermelon, coffee;
 var promoted = { };
+var bopon = [ ];
+var extraMapLayer;
+var pix_x_offset, pix_y_offset;
 
 function init(){
   var tileURL = "<%= poimap.basemap %>";
@@ -54,23 +56,6 @@ function init(){
     popupAnchor: new L.Point(0, -12)
   });
   
-  /*$("#colorPick").colorPicker();
-  $('#colorPick').on("change",
-	function(){
-	  if(activeWay){
-	    changeColor( activeWay )
-	  }
-	}
-  );
-  $("#roofPick").colorPicker();
-  $('#roofPick').on("change",
-	function(){
-	  if(activeWay){
-	    changeRoofColor( activeWay )
-	  }
-	}
-  );*/
-  
   for(var p=0;p<parks.length;p++){
     prepPark(p);
     writePark(p);
@@ -89,10 +74,19 @@ tree = new Image();
 tree.src = "/treeblot.png";
 
 function prepBuilding(b){
-  // determine center of whole building, including all sections
   promoted[ buildings[b].wayid ] = { effect: "3Dblock" };
   buildings[b].color = "#ff0000";
   buildings[b].roofcolor = "#cccccc";
+
+  // add a highlightable footprint
+  var wll = buildings[b].sections[0].vertices.slice(0);
+  for(var j=0;j<wll.length;j++){
+    wll[j] = new L.LatLng(wll[j][0], wll[j][1]);
+  }
+  var activePoly = new L.Polygon( wll, { color: "#00f", fillOpacity: 0.3, opacity: 0.65 } );
+  highlight_on_hover(activePoly);
+
+  // determine boundaries, center of all building sections
   var latmax = -1000;
   var latmin = 1000;
   var lngmax = -1000;
@@ -116,8 +110,17 @@ function prepBuilding(b){
 }
 
 function prepPark(p){
-  // determine center of park
-  promoted[ parks[p].wayid ] = { effect: "park" };
+  promoted[ parks[p].wayid ] = { effect: "2Dpark" };
+  
+  // add a highlightable footprint
+  var wll = parks[p].vertices.slice(0);
+  for(var j=0;j<wll.length;j++){
+    wll[j] = new L.LatLng(wll[j][0], wll[j][1]);
+  }
+  var activePoly = new L.Polygon( wll, { color: "#00f", fillOpacity: 0.3, opacity: 0.65 } );
+  highlight_on_hover(activePoly);
+
+  // determine boundaries, center of park
   var latmax = -1000;
   var latmin = 1000;
   var lngmax = -1000;
@@ -172,6 +175,7 @@ function darken(hexcolor){
 function writeBuilding(b){
   var canvas = $('#parkCanvas')[0];
 
+  // calculate scale, size, latlng<->pixel constants for this drawing
   var ctrlat = buildings[b].center[0];
   var ctrlng = buildings[b].center[1];
   var latmin = buildings[b].latmin;
@@ -181,7 +185,6 @@ function writeBuilding(b){
   var latspan = latmax - latmin;
   var lngspan = lngmax - lngmin;
   var levelmax = 0;
-
   if(latspan > lngspan){
   	canvas.height = parseInt( latspan / lngspan * 300 );
   	canvas.width = 300;
@@ -253,6 +256,15 @@ function writeBuilding(b){
 	  // set wall colors
       ctx.strokeStyle = "#000";
       ctx.strokeWidth = 1;
+      
+      // if the wall is at > 45 degree angle, darken the wall color
+      wallSlope = ( at_pt[1] - last_pt[1] ) / ( at_pt[0] - last_pt[0] );
+      if(Math.abs( wallSlope ) > 1){
+         ctx.fillStyle = darken(buildings[b].color);
+      }
+      else{
+         ctx.fillStyle = buildings[b].color;
+      }
 
 	  // draw previous vertex to current vertex
       ctx.moveTo( last_pt[0], last_pt[1] );
@@ -264,7 +276,8 @@ function writeBuilding(b){
       ctx.fill();
       //ctx.stroke();
       
-    wallSlope = ( at_pt[1] - next_pt[1] ) / ( at_pt[0] - next_pt[0] );
+      // if the wall is at > 45 degree angle, darken the wall color
+      wallSlope = ( at_pt[1] - next_pt[1] ) / ( at_pt[0] - next_pt[0] );
       if(Math.abs( wallSlope ) > 1){
          ctx.fillStyle = darken(buildings[b].color);
       }
@@ -272,7 +285,7 @@ function writeBuilding(b){
          ctx.fillStyle = buildings[b].color;
       }
 
-      // draw current vertex to next vertex
+      // draw the wall from current vertex to next vertex
       ctx.beginPath();
       ctx.moveTo( at_pt[0], at_pt[1] );
       ctx.lineTo( next_pt[0], next_pt[1] );
@@ -290,6 +303,7 @@ function writeBuilding(b){
     ctx.strokeStyle = "#000";
     ctx.strokeWidth = 2;
 
+    // the 3D roof animation
     if(buildings[b].effect == "3Droof"){
       var roofTip = [0, 0];
       for(var i=0; i<buildings[b].sections[s].vertices.length; i++){
@@ -412,7 +426,7 @@ function writeBuilding(b){
       }
     }
     else{
-      // draw a flat roof
+      // draw a flat roof for 3D Block
       // more complex roofs benefit by having all ceilings filled in event of failed drawing algorithm
       var roof_start = toPixel( buildings[b].sections[s].vertices[0], ctrlat, ctrlng, scale );
       ctx.moveTo( roof_start[0] - levels_offset_x, roof_start[1] - levels_offset );
@@ -427,6 +441,7 @@ function writeBuilding(b){
     }
   }
   
+  // add to map as image overlay
   var imageBounds = new L.LatLngBounds(new L.LatLng(latmin-latspan/6*Math.pow(1.7,levelmax),lngmin-lngspan/6*Math.pow(1.7,levelmax)), new L.LatLng(latmax+latspan/6*Math.pow(1.7,levelmax),lngmax+lngspan/6*Math.pow(1.7,levelmax)));
   var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
   menu_on_click(image, promoted[ buildings[b].wayid ].osmdata);
@@ -448,24 +463,26 @@ function writePark(p){
   var lngmax = parks[p].lngmax;
   var levels = 0;
   
-    // set scale in pixels per degree
-    var scale = Math.min( ( (canvas.width * 1 / 2) - levels * 8) / (lngmax - lngmin) * 2, (canvas.height * 1 / 2 - levels * 35) / (latmax - latmin) * 2);
+  // set scale in pixels per degree
+  var scale = Math.min( ( (canvas.width * 1 / 2) - levels * 8) / (lngmax - lngmin) * 2, (canvas.height * 1 / 2 - levels * 35) / (latmax - latmin) * 2);
 
-    // set a levels offset for this building, tuning based on scale
-    var factor = 1;
-    if(scale < 120000){
-      if(scale < 100000){
-        factor = 0.5;
-      }
-      else{
-        factor = 0.75;
-      }
+  // set a levels offset for this building, tuning based on scale
+  var factor = 1;
+  if(scale < 120000){
+    if(scale < 100000){
+      factor = 0.5;
     }
-    var levels_offset = levels * 35 * factor;
-    var levels_offset_x = levels * 8 * factor;
+    else{
+      factor = 0.75;
+    }
+  }
+  var levels_offset = levels * 35 * factor;
+  var levels_offset_x = levels * 8 * factor;
 
-    // set offset to [ center_pixel_x, center_pixel_y ] from upper left corner
-    var offset = [ (latmax - ctrlat) * scale, (ctrlng - lngmin) * scale ];
+  // set offset to [ center_pixel_x, center_pixel_y ] from upper left corner
+  var offset = [ (latmax - ctrlat) * scale, (ctrlng - lngmin) * scale ];
+  
+  // set icon for 2D texturing
   var icon = tree;
   if(parks[p].texture == "corn"){
   	icon = corn;
@@ -476,12 +493,15 @@ function writePark(p){
   else if(parks[p].texture == "watermelon"){
   	icon = watermelon;
   }
+  
+  // draw a solid repeating background of the texture
   for(var x=0; x<canvas.width; x+=25){
 	for(var y=0; y<canvas.height; y+=25){
 	    ctx.drawImage(icon, x, y, 25, 25);
 	}
   }
-      
+
+  // create a mask to hide (alpha=0) pixels outside the polygon
   var poly = parks[p].vertices;
   for(var i=0; i<poly.length; i++){
 	var at_pt = poly[i];
@@ -498,6 +518,7 @@ function writePark(p){
   }
   ctx.putImageData(imgData, 0, 0);
   
+  // map the texture with an ImageOverlay
   var latspan = latmax - latmin;
   var lngspan = lngmax - lngmin;
   var latspan = Math.max(latspan, lngspan);
@@ -506,6 +527,8 @@ function writePark(p){
   var image = new L.ImageOverlay(canvas.toDataURL(), imageBounds);
   map.addLayer(image);
   promoted[parks[p].wayid].drawnLayer = image;
+  
+  // experimental (currently not working) make clicking on the ImageOverlay open the info window
   menu_on_click(image, promoted[ parks[p].wayid ].osmdata);
 }
 function ptInPoly(pt, polyCords){
@@ -519,8 +542,6 @@ function ptInPoly(pt, polyCords){
 	}
 	return c;
 }
-var pix_x_offset = 150; // set to 1/2 the width of the canvas element before calling toPixel
-var pix_y_offset = 150; // set to 1/2 the height of the canvas element before calling toPixel
 function toPixel(latlng, ctrlat, ctrlng, scale){
   pix_x_offset = document.getElementById("parkCanvas").width / 2;
   pix_y_offset = document.getElementById("parkCanvas").height / 2;  
@@ -530,7 +551,6 @@ function toPixel(latlng, ctrlat, ctrlng, scale){
 }
 function bounce_on_hover(m, b){
   m.on('mouseover', function(e){
-    // glow icon?
     var boponalready = false;
     for(var j=0; j<bopon.length; j++){
       if(bopon[j] == m._icon){
@@ -542,7 +562,6 @@ function bounce_on_hover(m, b){
     bop(m._icon, 0);
   });
 }
-var bopon = [ ];
 function bop(icon, frame){
   setTimeout(function(){
     if(frame < 10){
@@ -562,10 +581,10 @@ function bop(icon, frame){
         }
       }
     }
-  }, 40)
+  }, 40);
 }
-
-function highlight_on_hover(p, wayid){
+// send a polygon to make it highlight when hovered on
+function highlight_on_hover(p){
   p.on("mouseover", function(e){
     p.setStyle( { color: "#f00" } );
   });
@@ -573,16 +592,7 @@ function highlight_on_hover(p, wayid){
     p.setStyle( { color: "#00f" } );
   });
 }
-
-function importOSM(){
-  $("#importButton").addClass("disabled");
-  var ne = map.getBounds().getNorthEast();
-  var sw = map.getBounds().getSouthWest();
-  var s = document.createElement('script');
-  s.src = '/osmbbox/' + sw.lng + ',' +  sw.lat + ',' + ne.lng + ',' + ne.lat;
-  s.type = "text/javascript";
-  document.body.appendChild(s);
-}
+// send a clickable layer and a data object to bind the two
 function menu_on_click(p, shard){
   p.on("click", function(e){
     activeWay = shard.wayid;
@@ -628,6 +638,7 @@ function setEffect(wayid, settype){
       prepBuilding(buildings.length-1);
     }
     else{
+      // find building in building index, if it already exists
       for(var b=0;b<buildings.length;b++){
         if(buildings[b].wayid == wayid){
           b_index = b;
@@ -639,7 +650,7 @@ function setEffect(wayid, settype){
     writeBuilding(b_index);
   }
   else if(promoted[wayid].effect.indexOf("3D") > -1){
-    // need to remove listing from building index
+    // remove listing from building index, it has a new effect now
     promoted[wayid].building = false;
     for(var b=0;b<buildings.length;b++){
       if(buildings[b].wayid == wayid){
@@ -651,6 +662,7 @@ function setEffect(wayid, settype){
   if(settype.indexOf("2D") > -1){
     var p_index = parks.length;
     if(!promoted[wayid].tiled || promoted[wayid].tiled != settype.replace("2D","")){
+      // create a listing in the park index
       parks.push({
         id: wayid,
 	    vertices: promoted[wayid].osmdata.line.slice(0),
@@ -660,18 +672,19 @@ function setEffect(wayid, settype){
       prepPark(parks.length-1);
     }
     else{
+      // find a listing in the park index that matches this way
       for(var b=0;b<parks.length;b++){
         if(parks[b].wayid == wayid){
           p_index = b;
           break;
         }
-      }    
+      }
     }
     promoted[wayid].tiled = true;
     writePark(p_index);
   }
   else if(promoted[wayid].effect.indexOf("2D") > -1){
-    // need to remove listing from park index
+    // remove listing from park index; its style has changed
     promoted[wayid].tiled = false;
     for(var b=0;b<parks.length;b++){
       if(parks[b].wayid == activeWay){
@@ -683,8 +696,10 @@ function setEffect(wayid, settype){
   promoted[wayid].effect = settype;
 }
 function tableOfData(dict){
+  // print out relevant OSM key-value pairs in a table styled by Bootstrap
   var table = "<table class='table-condensed table-striped'>";
   for(var k in dict){
+    // ignore OSM data values which are not interesting to the viewer
     if(k == "id" || k == "wayid" || k == "name" || k == "lat" || k == "lon" || k == "line" || k == "user"){
       continue;
     }
@@ -697,6 +712,7 @@ function tableOfData(dict){
 function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\\?&]"+nm+"=([^&#]*)";var rx=new RegExp(rxS);var rs=rx.exec(window.location.href);if(!rs){return null;}else{return rs[1];}}
     </script>
     <style type="text/css">
+/* supports icon animation */
 .leaflet-marker-icon{
   border: 1px solid transparent;
   border-radius:8px;
@@ -732,7 +748,7 @@ function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\
 	  			<input id="roofPick" type="text" value="#000000"/>
 	  		</div>
 	  	</form>
-	  </div>
+	  </div><!-- /#requestor -->
 
       <div class="clear"></div>
       <div id="selector">
@@ -746,9 +762,7 @@ function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\
       <div id="map"></div>
     </div><!-- /#map-container -->
     
-    <div id="overlay">
-    	<canvas id="parkCanvas" width="300" height="300" style="display:none"></canvas>
-    </div><!-- /#overlay -->
+    <canvas id="parkCanvas" width="300" height="300" style="display:none"></canvas>
 
   </body>
 </html>

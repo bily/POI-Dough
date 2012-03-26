@@ -576,7 +576,7 @@ function bop(icon, frame){
   }, 40)
 }
 
-function highlight_on_hover(p, wayid){
+function highlight_on_hover(p){
   p.on("mouseover", function(e){
     p.setStyle( { color: "#f00" } );
   });
@@ -617,7 +617,7 @@ function processOSM(data){
       });
 
       menu_on_click(activePoly, data[i]);
-      highlight_on_hover(activePoly, data[i].wayid);
+      highlight_on_hover(activePoly);
       map.addLayer(activePoly, data[i].wayid);
     }
     else{
