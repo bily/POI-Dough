@@ -62,10 +62,12 @@ function init(){
   watermelon.src = "/watermelon.png";
 
   for(var p=0;p<parks.length;p++){
+    promoted[ parks[p].wayid ] = { effect: "2Dpark" };
     prepPark(p);
     writePark(p);
   }
   for(var b=0;b<buildings.length;b++){
+    promoted[ buildings[b].wayid ] = { effect: "3Dblock" };
     prepBuilding(b);
     writeBuilding(b);
   }
