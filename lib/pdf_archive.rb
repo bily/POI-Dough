@@ -358,7 +358,7 @@ end
 
 get '/editmap/:mapid' do
   editmap = POIMap.find!(params[:mapid])
-  erb :mapedit, :locals => { :poimap => openmap }
+  erb :mapedit, :locals => { :poimap => editmap }
 end
 
 get '/savemap' do
