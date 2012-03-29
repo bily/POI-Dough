@@ -68,6 +68,8 @@ function init(){
   }
   for(var b=0;b<buildings.length;b++){
     promoted[ buildings[b].wayid ] = { effect: "3Dblock" };
+    buildings[b].color = "#ff0000";
+    buildings[b].roofcolor = "#cccccc";
     prepBuilding(b);
     writeBuilding(b);
   }
@@ -803,7 +805,7 @@ function gup(nm){nm=nm.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");var rxS="[\
 	  	
 	  	<h3>Save</h3>
 	  	<button id="exportButton" class="btn btn-primary" onclick="exportPOI()">
-	  	  Generate Map
+	  	  Update Map
 	  	</button>
 	  </div>
 
