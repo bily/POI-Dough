@@ -356,6 +356,11 @@ get '/openmap/:mapid' do
   erb :mapview, :locals => { :poimap => openmap }
 end
 
+get '/editmap/:mapid' do
+  editmap = POIMap.find!(params[:mapid])
+  erb :mapedit, :locals => { :poimap => openmap }
+end
+
 get '/savemap' do
   if(params["id"] != nil)
     saved = POIMap.find!(params["id"])
