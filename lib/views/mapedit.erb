@@ -62,7 +62,7 @@ function init(){
   watermelon.src = "/watermelon.png";
 
   for(var p=0;p<parks.length;p++){
-    promoted[ parks[p].wayid ] = { effect: "2Dpark" };
+    promoted[ parks[p].wayid ] = { effect: "2Dpark", texture: "park" };
     prepPark(p);
     writePark(p);
   }
